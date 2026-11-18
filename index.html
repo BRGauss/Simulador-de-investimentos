@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora Financeira & Simulador de Investimentos</title>
+  <style>
+    :root {
+      --bg-app: #0b0f17;
+      --bg-surface: #121826;
+      --bg-card: #161e2e;
+      --bg-card-header: #1c263b;
+      --bg-input: #0e1420;
+      --bg-result: rgba(16, 185, 129, 0.10);
+      --bg-result-strong: rgba(16, 185, 129, 0.18);
+      --bg-row-alt: rgba(255, 255, 255, 0.02);
+      --bg-row-hover: rgba(56, 189, 248, 0.06);
+      --border-subtle: #243047;
+      --border-focus: #10b981;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-primary: #10b981;
+      --accent-primary-hover: #059669;
+      --accent-secondary: #38bdf8;
+      --accent-warning: #f59e0b;
+      --accent-danger: #ef4444;
+      --shadow-card: 0 8px 24px -6px rgba(0, 0, 0, 0.45);
+      --radius-lg: 12px;
+      --radius-md: 8px;
+      --radius-sm: 6px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      --font-mono: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    }
+
+    [data-theme="light"] {
+      --bg-app: #f1f5f9;
+      --bg-surface: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-header: #f8fafc;
+      --bg-input: #fefce8;
+      --bg-result: #ecfdf5;
+      --bg-result-strong: #d1fae5;
+      --bg-row-alt: #f8fafc;
+      --bg-row-hover: #f0f9ff;
+      --border-subtle: #cbd5e1;
+      --border-focus: #059669;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --accent-primary: #059669;
+      --accent-primary-hover: #047857;
+      --accent-secondary: #0284c7;
+      --accent-warning: #d97706;
+      --accent-danger: #dc2626;
+      --shadow-card: 0 4px 16px -4px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      line-height: 1.45;
+      min-height: 100vh;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* Header & Navigation */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar-inner {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .brand-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: -0.5px;
+    }
+
+    .brand h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .brand span {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+
+    .tabs {
+      display: flex;
+      background: var(--bg-app);
+      padding: 4px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      gap: 4px;
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 0.45rem 0.95rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      background: var(--accent-primary);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-icon {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.42rem 0.7rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+
+    .btn-icon:hover {
+      border-color: var(--accent-primary);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
+
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    /* Grids */
+    .utils-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .calcs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 1120px) {
+      .utils-grid, .calcs-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .utils-grid, .calcs-grid {
+        grid-template-columns: 1fr;
+      }
+      .topbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .tabs {
+        justify-content: stretch;
+      }
+      .tab-btn {
+        flex: 1;
+        text-align: center;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      background: var(--bg-card-header);
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .card-header h2 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.01em;
+    }
+
+    .badge-tag {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent-secondary);
+      font-weight: 600;
+    }
+
+    .card-body {
+      padding: 0.85rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      align-items: center;
+      gap: 0.65rem;
+      min-height: 34px;
+    }
+
+    .field-row label {
+      font-size: 0.81rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-prefix, .input-suffix {
+      position: absolute;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      pointer-events: none;
+    }
+
+    .input-prefix { left: 0.6rem; }
+    .input-suffix { right: 0.6rem; }
+
+    input.fin-input, select.fin-select {
+      width: 100%;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.42rem 0.6rem;
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      text-align: right;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input.fin-input.has-prefix { padding-left: 1.85rem; }
+    input.fin-input.has-suffix { padding-right: 1.65rem; }
+    select.fin-select {
+      text-align: right;
+      font-family: var(--font-sans);
+      cursor: pointer;
+    }
+
+    input.fin-input:focus, select.fin-select:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+
+    .result-box {
+      background: var(--bg-result);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 0.42rem 0.65rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-align: right;
+    }
+
+    .result-box.highlight {
+      background: var(--bg-result-strong);
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      font-size: 0.92rem;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 0.25rem 0;
+    }
+
+    .formula-hint {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: var(--bg-app);
+      padding: 0.35rem 0.55rem;
+      border-radius: var(--radius-sm);
+      margin-top: 0.25rem;
+    }
+
+    .alert-msg {
+      font-size: 0.75rem;
+      color: var(--accent-warning);
+      margin-top: 0.2rem;
+      display: none;
+    }
+
+    .alert-msg.visible {
+      display: block;
+    }
+
+    /* Help Accordion */
+    .help-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .help-banner summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--accent-secondary);
+      user-select: none;
+    }
+
+    .help-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.65rem;
+      margin-top: 0.75rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .help-item strong {
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+    }
+
+    /* TAB 2: Simulador Mensal */
+    .sim-top-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 960px) {
+      .sim-top-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sim-inputs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.85rem;
+    }
+
+    @media (max-width: 540px) {
+      .sim-inputs-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sim-field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.3rem;
+    }
+
+    .kpi-stack {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      height: 100%;
+    }
+
+    @media (max-width: 600px) {
+      .kpi-stack {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 0.9rem 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-shadow: var(--shadow-card);
+    }
+
+    .kpi-card.primary {
+      border-color: var(--accent-primary);
+      background: linear-gradient(180deg, var(--bg-result-strong) 0%, var(--bg-card) 100%);
+    }
+
+    .kpi-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .kpi-card.primary .kpi-value {
+      color: var(--accent-primary);
+    }
+
+    .kpi-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-family: var(--font-mono);
+    }
+
+    /* Chart Card */
+    .chart-card {
+      margin-bottom: 1rem;
+    }
+
+    .chart-legend {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 0.35rem;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 240px;
+      padding: 0.5rem 0.75rem 0.25rem 0.75rem;
+    }
+
+    .chart-wrapper svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      display: block;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.55rem 0.75rem;
+      font-size: 0.76rem;
+      box-shadow: var(--shadow-card);
+      opacity: 0;
+      transition: opacity 0.12s ease;
+      z-index: 20;
+      min-width: 185px;
+    }
+
+    .chart-tooltip.visible {
+      opacity: 1;
+    }
+
+    .chart-tooltip-title {
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.2rem;
+    }
+
+    .chart-tooltip-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      margin-top: 0.15rem;
+    }
+
+    /* Table */
+    .table-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-card-header);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .table-scroll {
+      width: 100%;
+      overflow-x: auto;
+      max-height: 560px;
+      overflow-y: auto;
+    }
+
+    table.sim-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      min-width: 780px;
+    }
+
+    table.sim-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg-card-header);
+      color: var(--text-secondary);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      padding: 0.65rem 0.75rem;
+      text-align: right;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    table.sim-table thead th:first-child {
+      text-align: center;
+      width: 64px;
+    }
+
+    table.sim-table tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background-color 0.1s;
+    }
+
+    table.sim-table tbody tr:nth-child(even) {
+      background: var(--bg-row-alt);
+    }
+
+    table.sim-table tbody tr:hover {
+      background: var(--bg-row-hover);
+    }
+
+    table.sim-table td {
+      padding: 0.42rem 0.75rem;
+      text-align: right;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+    }
+
+    table.sim-table td:first-child {
+      text-align: center;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    table.sim-table td.col-juros {
+      color: var(--accent-secondary);
+    }
+
+    table.sim-table td.col-final {
+      font-weight: 700;
+      color: var(--accent-primary);
+    }
+
+    table.sim-table td.col-extra {
+      width: 155px;
+      padding: 0.28rem 0.5rem;
+    }
+
+    input.table-extra-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 0.3rem 0.45rem;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    input.table-extra-input:focus {
+      outline: none;
+      border-color: var(--accent-warning);
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.22);
+    }
+
+    input.table-extra-input.has-value {
+      border-color: var(--accent-warning);
+      background: rgba(245, 158, 11, 0.10);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      background: var(--bg-card-header);
+      color: var(--text-primary);
+      border: 1px solid var(--accent-primary);
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-card);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: all 0.2s ease;
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-badge">VF</div>
+        <div>
+          <h1>Calculadora Financeira Pro</h1>
+          <span>Funções Financeiras & Evolução de Aportes</span>
+        </div>
+      </div>
+
+      <nav class="tabs" role="tablist">
+        <button class="tab-btn active" data-tab="tab-calculadoras" role="tab" aria-selected="true">
+          Calculadoras & Conversores
+        </button>
+        <button class="tab-btn" data-tab="tab-simulador" role="tab" aria-selected="false">
+          Simulador Mensal (Aportes)
+        </button>
+      </nav>
+
+      <div class="actions">
+        <button class="btn-icon" id="btnExportJson" title="Baixar backup dos cenários em JSON">Exportar JSON</button>
+        <button class="btn-icon" id="btnImportJson" title="Carregar cenários de um arquivo JSON">Importar JSON</button>
+        <input type="file" id="fileImportJson" accept=".json" hidden />
+        <button class="btn-icon" id="btnResetAll" title="Restaurar valores iniciais das planilhas">Restaurar Padrão</button>
+        <button class="btn-icon" id="btnToggleTheme" title="Alternar tema Dark / Light">Tema: Dark</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ========================================================= -->
+    <!-- ABA 1: FUNÇÕES FINANCEIRAS DO EXCEL & CONVERSORES         -->
+    <!-- ========================================================= -->
+    <section id="tab-calculadoras" class="view-section active">
+
+      <details class="help-banner">
+        <summary>Guia Rápido dos Parâmetros Financeiros (VF, VP, PGTO, NPER, TAXA, TIPO)</summary>
+        <div class="help-grid">
+          <div class="help-item"><strong>Taxa:</strong> Taxa de juros por período (ex: taxa ao mês).</div>
+          <div class="help-item"><strong>Nper:</strong> Número total de períodos/meses da operação.</div>
+          <div class="help-item"><strong>Pgto:</strong> Depósito ou parcela recorrente feita a cada período.</div>
+          <div class="help-item"><strong>Vp:</strong> Valor presente (aporte inicial ou valor financiado).</div>
+          <div class="help-item"><strong>Vf:</strong> Valor futuro desejado ao final dos períodos.</div>
+          <div class="help-item"><strong>Tipo (0 ou 1):</strong> <code>0</code> = Vencimento no fim do mês (postecipado); <code>1</code> = No início do mês (antecipado).</div>
+        </div>
+      </details>
+
+      <div class="section-title">
+        <span>Conversores de Taxa, Prazo e Simulação de Renda</span>
+      </div>
+
+      <div class="utils-grid">
+        <!-- Card Conversão de Taxas -->
+        <article class="card">
+          <div class="card-header">
+            <h2>Conversor de Taxas Equivalentes</h2>
+            <span class="badge-tag">JUROS COMPOSTOS</span>
+          </div>
+          <div class="card-body">
+            <div class="field-row">
+              <label for="convTaxaAnual">Taxa Anual</label>
+              <div class="input-wrap">
+                <input id="convTaxaAnual" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="10,00" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="field-row">
+              <label>Taxa Mensal Equivalente</label>
+              <div class="result-box" id="outConvMensal">0,797%</div>
+            </div>
+            <div class="field-row">
+              <label>Taxa Diária (252 d.u.)</label>
+              <div class="result-box" id="outConvDiaria">0,038%</div>
+            </div>
+            <div class="divider"></div>
+            <div class="field-row">
+              <label for="convTaxaMensalIn">Taxa Mensal</label>
+              <div class="input-wrap">
+                <input id="convTaxaMensalIn" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="1,00" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="field-row">
+              <label>Taxa Anual Equivalente</label>
+              <div class="result-box highlight" id="outConvAnual">12,683%</div>
+            </div>
+            <div class="formula-hint">im = (1+ia)^(1/12)-1  |  id = (1+ia)^(1/252)-1</div>
+          </div>
+        </article>
+
+        <!-- Card Conversão de Prazos -->
+        <article class="card">
+          <div class="card-header">
+            <h2>Conversor de Prazos</h2>
+            <span class="badge-tag">TEMPO</span>
+          </div>
+          <div class="card-body">
+            <div class="field-row">
+              <label for="convDias">Dias (base 30)</label>
+              <div class="input-wrap">
+                <input id="convDias" class="fin-input" data-type="int" value="518" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label>Equivalente em Meses</label>
+              <div class="result-box" id="outDiasMeses">17,3</div>
+            </div>
+            <div class="divider"></div>
+            <div class="field-row">
+              <label for="convAnos">Anos</label>
+              <div class="input-wrap">
+                <input id="convAnos" class="fin-input" data-type="float" data-decimals="1" value="15" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label>Equivalente em Meses</label>
+              <div class="result-box" id="outAnosMeses">180</div>
+            </div>
+            <div class="divider"></div>
+            <div class="field-row">
+              <label for="convMeses">Meses</label>
+              <div class="input-wrap">
+                <input id="convMeses" class="fin-input" data-type="int" value="120" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label>Equivalente em Anos</label>
+              <div class="result-box highlight" id="outMesesAnos">10,0</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card Simulação Renda Passiva -->
+        <article class="card">
+          <div class="card-header">
+            <h2>Simulação de Renda Passiva</h2>
+            <span class="badge-tag">PERPETUIDADE</span>
+          </div>
+          <div class="card-body">
+            <div class="field-row">
+              <label for="simTaxa">Taxa Mensal Líquida</label>
+              <div class="input-wrap">
+                <input id="simTaxa" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,80" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="field-row">
+              <label for="simQueroGanhar">Para ganhar por mês</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="simQueroGanhar" class="fin-input has-prefix" data-type="currency" value="2.000,00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label>Devo acumular</label>
+              <div class="result-box highlight" id="outDevoAcumular">R$ 250.000,00</div>
+            </div>
+            <div class="divider"></div>
+            <div class="field-row">
+              <label for="simSeEuTiver">Se eu tiver acumulado</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="simSeEuTiver" class="fin-input has-prefix" data-type="currency" value="339.784,00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label>Vou ganhar por mês</label>
+              <div class="result-box" id="outVouGanharMes">R$ 2.718,27</div>
+            </div>
+            <div class="field-row">
+              <label>Renda Anual Estimada</label>
+              <div class="result-box" id="outVouGanharAno">R$ 32.619,26</div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="section-title">
+        <span>Calculadoras Financeiras (Padrão Excel)</span>
+      </div>
+
+      <div class="calcs-grid">
+        <!-- 1. VALOR FUTURO - VF -->
+        <article class="card">
+          <div class="card-header">
+            <h2>Valor Futuro</h2>
+            <span class="badge-tag">VF</span>
+          </div>
+          <div class="card-body">
+            <div class="field-row">
+              <label for="vf_vp">Valor presente (entrada) - VP</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="vf_vp" class="fin-input has-prefix" data-type="currency" value="1.000,00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="vf_pgto">Depósitos/Parcelas - PGTO</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="vf_pgto" class="fin-input has-prefix" data-type="currency" value="1.500,00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="vf_nper">Prazo em meses - NPER</label>
+              <div class="input-wrap">
+                <input id="vf_nper" class="fin-input" data-type="int" value="180" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="vf_taxa">Taxa ao mês</label>
+              <div class="input-wrap">
+                <input id="vf_taxa" class="fin-input has-suffix" data-type="rate" data-decimals="3" value="0,800" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="vf_tipo">Vencimento (0 ou 1)</label>
+              <select id="vf_tipo" class="fin-select">
+                <option value="0">0 - Fim do período</option>
+                <option value="1" selected>1 - Início do período</option>
+              </select>
+            </div>
+            <div class="divider"></div>
+            <div class="field-row">
+              <label>Valor futuro (resgate)</label>
+              <div class="result-box highlight" id="out_vf_total">R$ 608.350,70</div>
+            </div>
+            <div class="field-row">
+              <label>Valor investido</label>
+              <div class="result-box" id="out_vf_investido">R$ 271.000,00</div>
+            </div>
+            <div class="field-row">
+              <label>Juros produzidos</label>
+              <div class="result-box" id="out_vf_juros">R$ 337.350,70</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2. VALOR PRESENTE - VP -->
+        <article class="card">
+          <div class="card-header">
+            <h2>Valor Presente</h2>
+            <span class="badge-tag">VP</span>
+          </div>
+          <div class="card-body">
+            <div class="field-row">
+              <label for="vp_taxa">Taxa ao mês</label>
+              <div class="input-wrap">
+                <input id="vp_taxa" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,70" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="vp_pgto">Depósitos/Parcelas - PGTO</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="vp_pgto" class="fin-input has-prefix" data-type="currency" value="0,00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="vp_nper">Prazo em meses - NPER</label>
+              <div class="input-wrap">
+                <input id="vp_nper" class="fin-input" data-type="int" value="120" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="vp_vf">Valor futuro (resgate)</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="vp_vf" class="fin-input has-prefix" data-type="currency" value="300.000,00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="vp_tipo">Vencimento (0 ou 1)</label>
+              <select id="vp_tipo" class="fin-select">
+                <option value="0" selected>0 - Fim do período</option>
+                <option value="1">1 - Início do período</option>
+              </select>
+            </div>
+            <div class="divider"></div>
+            <div class="field-row">
+              <label>Valor presente (entrada) - VP</label>
+              <div class="result-box highlight" id="out_vp_total">R$ 129.892,71</div>
+            </div>
+            <div class="formula-hint">Se VF = 0 e PGTO > 0, calcula o valor presente da série de parcelas.</div>
+          </div>
+        </article>
+
+        <!-- 3. TAXA DE JUROS - TAXA -->
+        <article class="card">
+          <div class="card-header">
+            <h2>Taxa de Juros</h2>
+            <span class="badge-tag">TAXA</span>
+          </div>
+          <div class="card-body">
+            <div class="field-row">
+              <label for="tx_nper">Prazo em meses - NPER</label>
+              <div class="input-wrap">
+                <input id="tx_nper" class="fin-input" data-type="int" value="10" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="tx_pgto">Depósitos/Parcelas - PGTO</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="tx_pgto" class="fin-input has-prefix" data-type="currency" value="927,00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="tx_vp">Valor presente (entrada) - VP</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="tx_vp" class="fin-input has-prefix" data-type="currency" value="927,00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="tx_vf">Valor futuro (resgate) - VF</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="tx_vf" class="fin-input has-prefix" data-type="currency" value="12.386,00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="tx_tipo">Vencimento (0 ou 1)</label>
+              <select id="tx_tipo" class="fin-select">
+                <option value="0" selected>0 - Fim do período</option>
+                <option value="1">1 - Início do período</option>
+              </select>
+            </div>
+            <div class="divider"></div>
+            <div class="field-row">
+              <label>Taxa ao mês</label>
+              <div class="result-box highlight" id="out_tx_mensal">3,820%</div>
+            </div>
+            <div class="field-row">
+              <label>Taxa equivalente ao ano</label>
+              <div class="result-box" id="out_tx_anual">56,829%</div>
+            </div>
+            <div class="alert-msg" id="alert_tx">Não foi possível convergir uma taxa real para esses valores.</div>
+          </div>
+        </article>
+
+        <!-- 4. CAPITAL / JUROS ACUMULADOS - PGTOCAPACUM -->
+        <article class="card">
+          <div class="card-header">
+            <h2>Juros Acumulados (Price)</h2>
+            <span class="badge-tag">PGTOCAPACUM</span>
+          </div>
+          <div class="card-body">
+            <div class="field-row">
+              <label for="ca_taxa">Taxa ao mês</label>
+              <div class="input-wrap">
+                <input id="ca_taxa" class="fin-input has-suffix" data-type="rate" data-decimals="3" value="0,600" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="ca_nper">Prazo em meses - NPER</label>
+              <div class="input-wrap">
+                <input id="ca_nper" class="fin-input" data-type="int" value="120" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="ca_vp">Empréstimo (Valor presente)</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="ca_vp" class="fin-input has-prefix" data-type="currency" value="129.892,71" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="ca_tipo">Vencimento (0 ou 1)</label>
+              <select id="ca_tipo" class="fin-select">
+                <option value="0" selected>0 - Fim do período</option>
+                <option value="1">1 - Início do período</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <label for="ca_ini">Primeiro pagamento</label>
+              <div class="input-wrap">
+                <input id="ca_ini" class="fin-input" data-type="int" value="1" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="ca_fim">Último pagamento</label>
+              <div class="input-wrap">
+                <input id="ca_fim" class="fin-input" data-type="int" value="120" />
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="field-row">
+              <label>Juros acumulados no intervalo</label>
+              <div class="result-box highlight" id="out_ca_juros">R$ 52.697,85</div>
+            </div>
+            <div class="field-row">
+              <label>Parcela mensal fixa (PGTO)</label>
+              <div class="result-box" id="out_ca_pgto">R$ 1.521,59</div>
+            </div>
+            <div class="alert-msg" id="alert_ca">Verifique se 1 ≤ Primeiro ≤ Último ≤ Prazo.</div>
+          </div>
+        </article>
+
+        <!-- 5. NÚMERO DE PERÍODOS - NPER - FINANCIAMENTO -->
+        <article class="card">
+          <div class="card-header">
+            <h2>Prazo de Financiamento</h2>
+            <span class="badge-tag">NPER - DÍVIDA</span>
+          </div>
+          <div class="card-body">
+            <div class="field-row">
+              <label for="npf_taxa">Taxa ao mês</label>
+              <div class="input-wrap">
+                <input id="npf_taxa" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,08" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="npf_pgto">Parcela mensal - PGTO</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="npf_pgto" class="fin-input has-prefix" data-type="currency" value="1.000,00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="npf_vp">Valor da dívida / saldo</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="npf_vp" class="fin-input has-prefix" data-type="currency" value="1.263,22" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="npf_tipo">Vencimento (0 ou 1)</label>
+              <select id="npf_tipo" class="fin-select">
+                <option value="0" selected>0 - Fim do período</option>
+                <option value="1">1 - Início do período</option>
+              </select>
+            </div>
+            <div class="divider"></div>
+            <div class="field-row">
+              <label>Prazo em meses - NPER</label>
+              <div class="result-box highlight" id="out_npf_meses">1,3</div>
+            </div>
+            <div class="field-row">
+              <label>Quanto você vai pagar</label>
+              <div class="result-box" id="out_npf_total">R$ 1.264,36</div>
+            </div>
+            <div class="field-row">
+              <label>Juros totais pagos</label>
+              <div class="result-box" id="out_npf_juros">R$ 1,14</div>
+            </div>
+            <div class="alert-msg" id="alert_npf">Parcela insuficiente para amortizar os juros mensais.</div>
+          </div>
+        </article>
+
+        <!-- 6. NÚMERO DE PERÍODOS - NPER - INVESTIMENTO -->
+        <article class="card">
+          <div class="card-header">
+            <h2>Prazo de Investimento</h2>
+            <span class="badge-tag">NPER - META</span>
+          </div>
+          <div class="card-body">
+            <div class="field-row">
+              <label for="npi_taxa">Taxa ao mês</label>
+              <div class="input-wrap">
+                <input id="npi_taxa" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,60" />
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="npi_pgto">Depósitos/Parcelas - PGTO</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="npi_pgto" class="fin-input has-prefix" data-type="currency" value="3.000,00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="npi_vp">Entrada (Valor presente)</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="npi_vp" class="fin-input has-prefix" data-type="currency" value="13.000,00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="npi_vf">Valor futuro (objetivo)</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input id="npi_vf" class="fin-input has-prefix" data-type="currency" value="400.000,00" />
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="npi_tipo">Vencimento (0 ou 1)</label>
+              <select id="npi_tipo" class="fin-select">
+                <option value="0" selected>0 - Fim do período</option>
+                <option value="1">1 - Início do período</option>
+              </select>
+            </div>
+            <div class="divider"></div>
+            <div class="field-row">
+              <label>Prazo em meses - NPER</label>
+              <div class="result-box highlight" id="out_npi_meses">94,0</div>
+            </div>
+            <div class="field-row">
+              <label>Total das parcelas</label>
+              <div class="result-box" id="out_npi_parcelas">R$ 281.901,80</div>
+            </div>
+            <div class="field-row">
+              <label>Total investido</label>
+              <div class="result-box" id="out_npi_investido">R$ 294.901,80</div>
+            </div>
+            <div class="field-row">
+              <label>Juros produzidos</label>
+              <div class="result-box" id="out_npi_juros">R$ 105.098,20</div>
+            </div>
+            <div class="alert-msg" id="alert_npi">Objetivo inatingível com aportes/taxa informados.</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- ABA 2: SIMULADOR MENSAL COM APORTES ADICIONAIS            -->
+    <!-- ========================================================= -->
+    <section id="tab-simulador" class="view-section">
+      <div class="sim-top-grid">
+        <!-- Parâmetros de Entrada -->
+        <article class="card">
+          <div class="card-header">
+            <h2>Parâmetros da Simulação</h2>
+            <span class="badge-tag">JUROS SOBRE SALDO INICIAL</span>
+          </div>
+          <div class="card-body">
+            <div class="sim-inputs-grid">
+              <div class="sim-field">
+                <label for="sim_inicial">Investimento Inicial</label>
+                <div class="input-wrap">
+                  <span class="input-prefix">R$</span>
+                  <input id="sim_inicial" class="fin-input has-prefix" data-type="currency" value="20.000,00" />
+                </div>
+              </div>
+              <div class="sim-field">
+                <label for="sim_mensal">Investimento Mensal</label>
+                <div class="input-wrap">
+                  <span class="input-prefix">R$</span>
+                  <input id="sim_mensal" class="fin-input has-prefix" data-type="currency" value="1.000,00" />
+                </div>
+              </div>
+              <div class="sim-field">
+                <label for="sim_prazo">Prazo (meses)</label>
+                <div class="input-wrap">
+                  <input id="sim_prazo" class="fin-input" data-type="int" value="12" />
+                </div>
+              </div>
+              <div class="sim-field">
+                <label for="sim_rentab">Rentabilidade Mês</label>
+                <div class="input-wrap">
+                  <input id="sim_rentab" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,79" />
+                  <span class="input-suffix">%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- KPIs Consolidados -->
+        <div class="kpi-stack">
+          <div class="kpi-card">
+            <span class="kpi-label">Investimentos (Aportes)</span>
+            <span class="kpi-value" id="kpi_investido">R$ 32.000,00</span>
+            <span class="kpi-sub" id="kpi_extras_info">Extras: R$ 0,00</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Juros Recebidos</span>
+            <span class="kpi-value" id="kpi_juros">R$ 2.515,97</span>
+            <span class="kpi-sub" id="kpi_juros_pct">+7,86% sobre aportes</span>
+          </div>
+          <div class="kpi-card primary">
+            <span class="kpi-label">Saldo Total Final</span>
+            <span class="kpi-value" id="kpi_saldo">R$ 34.515,97</span>
+            <span class="kpi-sub" id="kpi_prazo_anos">1,0 ano</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfico de Linha Interativo -->
+      <article class="card chart-card">
+        <div class="card-header">
+          <h2>Evolução Patrimonial Mês a Mês</h2>
+          <div class="chart-legend">
+            <span><i class="legend-dot" style="background: var(--accent-primary);"></i>Saldo Total</span>
+            <span><i class="legend-dot" style="background: var(--accent-secondary);"></i>Total Investido</span>
+          </div>
+        </div>
+        <div class="chart-wrapper" id="chartContainer">
+          <svg id="evolutionChart" preserveAspectRatio="none"></svg>
+          <div class="chart-tooltip" id="chartTooltip"></div>
+        </div>
+      </article>
+
+      <!-- Tabela Mês a Mês -->
+      <article class="card">
+        <div class="table-toolbar">
+          <div>
+            <strong style="font-size: 0.86rem;">Demonstrativo Mensal Detalhado</strong>
+            <span style="display: block; font-size: 0.74rem; color: var(--text-secondary);">
+              Preencha <strong>Investimento Adicional</strong> em qualquer mês para recalcular automaticamente os meses seguintes.
+            </span>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="btn-icon" id="btnClearExtras">Limpar Aportes Extras</button>
+            <button class="btn-icon" id="btnExportCsv">Exportar CSV</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="sim-table">
+            <thead>
+              <tr>
+                <th>Mês</th>
+                <th>Saldo Inicial</th>
+                <th>Juros</th>
+                <th>Saldo + Juros</th>
+                <th>Investimento Mensal</th>
+                <th>Investimento Adicional</th>
+                <th>Saldo Final</th>
+              </tr>
+            </thead>
+            <tbody id="simTableBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "calc_fin_pro_state_v1";
+
+      const DEFAULTS = {
+        theme: "dark",
+        activeTab: "tab-calculadoras",
+        fields: {
+          convTaxaAnual: 10.0,
+          convTaxaMensalIn: 1.0,
+          convDias: 518,
+          convAnos: 15,
+          convMeses: 120,
+          simTaxa: 0.8,
+          simQueroGanhar: 2000.0,
+          simSeEuTiver: 339784.0,
+          vf_vp: 1000.0,
+          vf_pgto: 1500.0,
+          vf_nper: 180,
+          vf_taxa: 0.8,
+          vf_tipo: "1",
+          vp_taxa: 0.7,
+          vp_pgto: 0.0,
+          vp_nper: 120,
+          vp_vf: 300000.0,
+          vp_tipo: "0",
+          tx_nper: 10,
+          tx_pgto: 927.0,
+          tx_vp: 927.0,
+          tx_vf: 12386.0,
+          tx_tipo: "0",
+          ca_taxa: 0.6,
+          ca_nper: 120,
+          ca_vp: 129892.71,
+          ca_tipo: "0",
+          ca_ini: 1,
+          ca_fim: 120,
+          npf_taxa: 0.08,
+          npf_pgto: 1000.0,
+          npf_vp: 1263.22,
+          npf_tipo: "0",
+          npi_taxa: 0.6,
+          npi_pgto: 3000.0,
+          npi_vp: 13000.0,
+          npi_vf: 400000.0,
+          npi_tipo: "0",
+          sim_inicial: 20000.0,
+          sim_mensal: 1000.0,
+          sim_prazo: 12,
+          sim_rentab: 0.79
+        },
+        adicionais: {}
+      };
+
+      let state = loadState();
+      let lastSimRows = [];
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return structuredClone(DEFAULTS);
+          const parsed = JSON.parse(raw);
+          return {
+            theme: parsed.theme === "light" ? "light" : "dark",
+            activeTab: parsed.activeTab || "tab-calculadoras",
+            fields: { ...DEFAULTS.fields, ...(parsed.fields || {}) },
+            adicionais: { ...(parsed.adicionais || {}) }
+          };
+        } catch {
+          return structuredClone(DEFAULTS);
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch {
+          // Ignora erro de quota caso navegador restrinja storage local
+        }
+      }
+
+      function showToast(msg) {
+        const el = document.getElementById("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        clearTimeout(el._timer);
+        el._timer = setTimeout(() => el.classList.remove("show"), 2600);
+      }
+
+      /* ========================================================= */
+      /* PARSING & FORMATAÇÃO PT-BR                                */
+      /* ========================================================= */
+      function parseInputNumber(raw, type = "currency") {
+        if (typeof raw === "number") return isFinite(raw) ? raw : 0;
+        let s = String(raw || "").trim().replace(/[R$\s%]/g, "");
+        if (!s || s === "-") return 0;
+
+        if (s.includes(",")) {
+          s = s.replace(/\./g, "").replace(",", ".");
+        } else if (s.includes(".")) {
+          if (type === "currency" && /^-?\d{1,3}(\.\d{3})+$/.test(s)) {
+            s = s.replace(/\./g, "");
+          } else if ((s.match(/\./g) || []).length > 1) {
+            s = s.replace(/\./g, "");
+          }
+        }
+        const n = parseFloat(s);
+        return isFinite(n) ? n : 0;
+      }
+
+      function formatInputDisplay(val, type = "currency", decimals = 2) {
+        const n = isFinite(val) ? val : 0;
+        if (type === "int") {
+          return Math.round(n).toString();
+        }
+        return n.toLocaleString("pt-BR", {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        });
+      }
+
+      function fmtBRL(val) {
+        if (!isFinite(val)) return "—";
+        return val.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      }
+
+      function fmtNum(val, decimals = 2) {
+        if (!isFinite(val)) return "—";
+        return val.toLocaleString("pt-BR", {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        });
+      }
+
+      function fmtPct(val, decimals = 3) {
+        if (!isFinite(val)) return "—";
+        return val.toLocaleString("pt-BR", {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        }) + "%";
+      }
+
+      /* ========================================================= */
+      /* MOTOR MATEMÁTICO FINANCEIRO (PARIDADE EXCEL)              */
+      /* ========================================================= */
+
+      // 1. Valor Futuro (VF)
+      function calcVF(rate, nper, pgto, vp, tipo) {
+        if (Math.abs(rate) < 1e-10) {
+          return vp + pgto * nper;
+        }
+        const factor = Math.pow(1 + rate, nper);
+        return vp * factor + pgto * ((factor - 1) / rate) * (1 + rate * tipo);
+      }
+
+      // 2. Valor Presente (VP)
+      function calcVP(rate, nper, pgto, vf, tipo) {
+        if (Math.abs(rate) < 1e-10) {
+          return vf === 0 ? pgto * nper : vf - pgto * nper;
+        }
+        const factor = Math.pow(1 + rate, nper);
+        const annuityFV = pgto * ((factor - 1) / rate) * (1 + rate * tipo);
+        // Se VF = 0, retorna o valor presente da série de pagamentos PGTO
+        if (Math.abs(vf) < 1e-9 && Math.abs(pgto) > 0) {
+          return annuityFV / factor;
+        }
+        return (vf - annuityFV) / factor;
+      }
+
+      // 3. Taxa de Juros (TAXA) - Solver Híbrido Newton-Raphson + Bisseção
+      function calcTAXA(nper, pgto, vp, vf, tipo) {
+        if (nper <= 0) return NaN;
+
+        const isLoanMode = Math.abs(vf) < 1e-9 && vp > 0 && pgto > 0;
+
+        function f(i) {
+          if (Math.abs(i) < 1e-10) {
+            return isLoanMode ? pgto * nper - vp : vp + pgto * nper - vf;
+          }
+          const pow = Math.pow(1 + i, nper);
+          if (!isFinite(pow)) return 1e300;
+          if (isLoanMode) {
+            return pgto * (1 + i * tipo) * ((1 - Math.pow(1 + i, -nper)) / i) - vp;
+          }
+          return vp * pow + pgto * (1 + i * tipo) * ((pow - 1) / i) - vf;
+        }
+
+        // Newton-Raphson inicial
+        let guess = 0.01;
+        for (let iter = 0; iter < 80; iter++) {
+          const y = f(guess);
+          if (Math.abs(y) < 1e-9 && guess > -0.9999) return guess;
+          const h = 1e-7;
+          const dy = (f(guess + h) - f(guess - h)) / (2 * h);
+          if (Math.abs(dy) < 1e-14) break;
+          const next = guess - y / dy;
+          if (!isFinite(next) || next <= -0.9999 || next > 100) break;
+          if (Math.abs(next - guess) < 1e-10) return next;
+          guess = next;
+        }
+
+        // Fallback por Bisseção garantindo robustez
+        let low = -0.99;
+        let high = 5.0;
+        let fLow = f(low);
+        let fHigh = f(high);
+
+        if (fLow * fHigh > 0) return NaN;
+
+        for (let iter = 0; iter < 120; iter++) {
+          const mid = (low + high) / 2;
+          const fMid = f(mid);
+          if (Math.abs(fMid) < 1e-9 || (high - low) / 2 < 1e-10) return mid;
+          if (fLow * fMid <= 0) {
+            high = mid;
+            fHigh = fMid;
+          } else {
+            low = mid;
+            fLow = fMid;
+          }
+        }
+        return (low + high) / 2;
+      }
+
+      // 4. Juros Acumulados Price (PGTOCAPACUM / CUMIPMT)
+      function calcPGTOCAPACUM(rate, nper, vp, ini, fim, tipo) {
+        if (nper <= 0 || vp <= 0 || ini < 1 || fim < ini || fim > nper) {
+          return { juros: NaN, pgto: NaN };
+        }
+        if (Math.abs(rate) < 1e-10) {
+          return { juros: 0, pgto: vp / nper };
+        }
+        const factor = Math.pow(1 + rate, nper);
+        const pgto = (vp * rate * factor) / ((factor - 1) * (1 + rate * tipo));
+
+        let saldo = vp;
+        let jurosAcum = 0;
+
+        for (let p = 1; p <= fim; p++) {
+          let jurosPeriodo = 0;
+          if (tipo === 1 && p === 1) {
+            jurosPeriodo = 0;
+            saldo -= pgto;
+          } else if (tipo === 1) {
+            jurosPeriodo = saldo * rate;
+            saldo = saldo + jurosPeriodo - pgto;
+          } else {
+            jurosPeriodo = saldo * rate;
+            saldo = saldo + jurosPeriodo - pgto;
+          }
+
+          if (p >= ini) {
+            jurosAcum += jurosPeriodo;
+          }
+        }
+
+        return { juros: jurosAcum, pgto };
+      }
+
+      // 5. NPER Financiamento (Dívida VP -> 0)
+      function calcNPERFinanciamento(rate, pgto, vp, tipo) {
+        if (pgto <= 0 || vp <= 0) return NaN;
+        if (Math.abs(rate) < 1e-10) return vp / pgto;
+        const pAdj = pgto * (1 + rate * tipo);
+        if (pAdj <= vp * rate) return NaN; // Parcela não cobre juros
+        return -Math.log(1 - (vp * rate) / pAdj) / Math.log(1 + rate);
+      }
+
+      // 6. NPER Investimento (VP + PGTO -> VF)
+      function calcNPERInvestimento(rate, pgto, vp, vf, tipo) {
+        if (vf <= vp) return 0;
+        if (Math.abs(rate) < 1e-10) {
+          return pgto > 0 ? (vf - vp) / pgto : NaN;
+        }
+        const pAdj = pgto * (1 + rate * tipo);
+        const num = vf * rate + pAdj;
+        const den = vp * rate + pAdj;
+        if (den <= 0 || num / den <= 0) return NaN;
+        return Math.log(num / den) / Math.log(1 + rate);
+      }
+
+      /* ========================================================= */
+      /* RECÁLCULO DA ABA 1 (CALCULADORAS & CONVERSORES)           */
+      /* ========================================================= */
+      function recalculateCalculators() {
+        const f = state.fields;
+
+        // Conversor de Taxas
+        const ia = f.convTaxaAnual / 100;
+        const imFromIa = ia > -1 ? (Math.pow(1 + ia, 1 / 12) - 1) * 100 : NaN;
+        const idFromIa = ia > -1 ? (Math.pow(1 + ia, 1 / 252) - 1) * 100 : NaN;
+        document.getElementById("outConvMensal").textContent = fmtPct(imFromIa, 3);
+        document.getElementById("outConvDiaria").textContent = fmtPct(idFromIa, 3);
+
+        const im = f.convTaxaMensalIn / 100;
+        const iaFromIm = im > -1 ? (Math.pow(1 + im, 12) - 1) * 100 : NaN;
+        document.getElementById("outConvAnual").textContent = fmtPct(iaFromIm, 3);
+
+        // Conversor de Prazos
+        document.getElementById("outDiasMeses").textContent = fmtNum(f.convDias / 30, 1);
+        document.getElementById("outAnosMeses").textContent = fmtNum(f.convAnos * 12, 0);
+        document.getElementById("outMesesAnos").textContent = fmtNum(f.convMeses / 12, 1);
+
+        // Simulação Renda Passiva
+        const simRate = f.simTaxa / 100;
+        const devoAcumular = simRate > 0 ? f.simQueroGanhar / simRate : NaN;
+        const ganhoMensalRaw = f.simSeEuTiver * simRate;
+        const ganhoAnualRaw = ganhoMensalRaw * 12;
+        document.getElementById("outDevoAcumular").textContent = fmtBRL(devoAcumular);
+        document.getElementById("outVouGanharMes").textContent = fmtBRL(ganhoMensalRaw);
+        document.getElementById("outVouGanharAno").textContent = fmtBRL(ganhoAnualRaw);
+
+        // 1. VF
+        const vfRate = f.vf_taxa / 100;
+        const vfNper = Math.max(0, Math.round(f.vf_nper));
+        const vfTipo = parseInt(f.vf_tipo, 10) || 0;
+        const vfTotal = calcVF(vfRate, vfNper, f.vf_pgto, f.vf_vp, vfTipo);
+        const vfInvestido = f.vf_vp + f.vf_pgto * vfNper;
+        const vfJuros = vfTotal - vfInvestido;
+        document.getElementById("out_vf_total").textContent = fmtBRL(vfTotal);
+        document.getElementById("out_vf_investido").textContent = fmtBRL(vfInvestido);
+        document.getElementById("out_vf_juros").textContent = fmtBRL(vfJuros);
+
+        // 2. VP
+        const vpRate = f.vp_taxa / 100;
+        const vpNper = Math.max(0, Math.round(f.vp_nper));
+        const vpTipo = parseInt(f.vp_tipo, 10) || 0;
+        const vpRes = calcVP(vpRate, vpNper, f.vp_pgto, f.vp_vf, vpTipo);
+        document.getElementById("out_vp_total").textContent = fmtBRL(vpRes);
+
+        // 3. TAXA
+        const txNper = Math.max(1, Math.round(f.tx_nper));
+        const txTipo = parseInt(f.tx_tipo, 10) || 0;
+        const txMensal = calcTAXA(txNper, f.tx_pgto, f.tx_vp, f.tx_vf, txTipo);
+        const alertTx = document.getElementById("alert_tx");
+        if (isFinite(txMensal)) {
+          alertTx.classList.remove("visible");
+          document.getElementById("out_tx_mensal").textContent = fmtPct(txMensal * 100, 3);
+          document.getElementById("out_tx_anual").textContent = fmtPct((Math.pow(1 + txMensal, 12) - 1) * 100, 3);
+        } else {
+          alertTx.classList.add("visible");
+          document.getElementById("out_tx_mensal").textContent = "—";
+          document.getElementById("out_tx_anual").textContent = "—";
+        }
+
+        // 4. PGTOCAPACUM
+        const caRate = f.ca_taxa / 100;
+        const caNper = Math.max(1, Math.round(f.ca_nper));
+        const caTipo = parseInt(f.ca_tipo, 10) || 0;
+        const caIni = Math.round(f.ca_ini);
+        const caFim = Math.round(f.ca_fim);
+        const caRes = calcPGTOCAPACUM(caRate, caNper, f.ca_vp, caIni, caFim, caTipo);
+        const alertCa = document.getElementById("alert_ca");
+        if (isFinite(caRes.juros)) {
+          alertCa.classList.remove("visible");
+          document.getElementById("out_ca_juros").textContent = fmtBRL(caRes.juros);
+          document.getElementById("out_ca_pgto").textContent = fmtBRL(caRes.pgto);
+        } else {
+          alertCa.classList.add("visible");
+          document.getElementById("out_ca_juros").textContent = "—";
+          document.getElementById("out_ca_pgto").textContent = "—";
+        }
+
+        // 5. NPER Financiamento
+        const npfRate = f.npf_taxa / 100;
+        const npfTipo = parseInt(f.npf_tipo, 10) || 0;
+        const npfMeses = calcNPERFinanciamento(npfRate, f.npf_pgto, f.npf_vp, npfTipo);
+        const alertNpf = document.getElementById("alert_npf");
+        if (isFinite(npfMeses)) {
+          alertNpf.classList.remove("visible");
+          const totalPago = npfMeses * f.npf_pgto;
+          document.getElementById("out_npf_meses").textContent = fmtNum(npfMeses, 1);
+          document.getElementById("out_npf_total").textContent = fmtBRL(totalPago);
+          document.getElementById("out_npf_juros").textContent = fmtBRL(Math.max(0, totalPago - f.npf_vp));
+        } else {
+          alertNpf.classList.add("visible");
+          document.getElementById("out_npf_meses").textContent = "—";
+          document.getElementById("out_npf_total").textContent = "—";
+          document.getElementById("out_npf_juros").textContent = "—";
+        }
+
+        // 6. NPER Investimento
+        const npiRate = f.npi_taxa / 100;
+        const npiTipo = parseInt(f.npi_tipo, 10) || 0;
+        const npiMeses = calcNPERInvestimento(npiRate, f.npi_pgto, f.npi_vp, f.npi_vf, npiTipo);
+        const alertNpi = document.getElementById("alert_npi");
+        if (isFinite(npiMeses)) {
+          alertNpi.classList.remove("visible");
+          const totalParcelas = npiMeses * f.npi_pgto;
+          const totalInvestido = f.npi_vp + totalParcelas;
+          const jurosProduzidos = f.npi_vf - totalInvestido;
+          document.getElementById("out_npi_meses").textContent = fmtNum(npiMeses, 1);
+          document.getElementById("out_npi_parcelas").textContent = fmtBRL(totalParcelas);
+          document.getElementById("out_npi_investido").textContent = fmtBRL(totalInvestido);
+          document.getElementById("out_npi_juros").textContent = fmtBRL(jurosProduzidos);
+        } else {
+          alertNpi.classList.add("visible");
+          document.getElementById("out_npi_meses").textContent = "—";
+          document.getElementById("out_npi_parcelas").textContent = "—";
+          document.getElementById("out_npi_investido").textContent = "—";
+          document.getElementById("out_npi_juros").textContent = "—";
+        }
+      }
+
+      /* ========================================================= */
+      /* ABA 2: SIMULADOR MENSAL (CLUBE DOS POUPADORES)            */
+      /* ========================================================= */
+      function buildSimulationTableStructure(prazo) {
+        const tbody = document.getElementById("simTableBody");
+        const currentRows = tbody.children.length;
+
+        if (currentRows === prazo) return;
+
+        if (currentRows > prazo) {
+          while (tbody.children.length > prazo) {
+            tbody.removeChild(tbody.lastElementChild);
+          }
+          return;
+        }
+
+        const frag = document.createDocumentFragment();
+        for (let m = currentRows + 1; m <= prazo; m++) {
+          const tr = document.createElement("tr");
+          tr.dataset.month = String(m);
+
+          const extraVal = state.adicionais[m] || 0;
+          const extraStr = extraVal > 0 ? formatInputDisplay(extraVal, "currency", 2) : "";
+
+          tr.innerHTML = `
+            <td>${m}</td>
+            <td class="cell-inicial">0,00</td>
+            <td class="col-juros cell-juros">0,00</td>
+            <td class="cell-saldo-juros">0,00</td>
+            <td class="cell-mensal">0,00</td>
+            <td class="col-extra">
+              <input
+                type="text"
+                class="table-extra-input ${extraVal > 0 ? "has-value" : ""}"
+                data-month="${m}"
+                placeholder="0,00"
+                value="${extraStr}"
+                aria-label="Investimento adicional mês ${m}"
+              />
+            </td>
+            <td class="col-final cell-final">0,00</td>
+          `;
+          frag.appendChild(tr);
+        }
+        tbody.appendChild(frag);
+      }
+
+      function recalculateSimulation() {
+        const f = state.fields;
+        const inicial = Math.max(0, f.sim_inicial);
+        const mensal = Math.max(0, f.sim_mensal);
+        const prazo = Math.min(600, Math.max(1, Math.round(f.sim_prazo || 1)));
+        const rate = f.sim_rentab / 100;
+
+        buildSimulationTableStructure(prazo);
+
+        const tbody = document.getElementById("simTableBody");
+        const rows = tbody.children;
+
+        let saldoAtual = inicial;
+        let totalInvestido = inicial;
+        let totalJuros = 0;
+        let totalExtras = 0;
+
+        lastSimRows = [{
+          mes: 0,
+          saldoFinal: inicial,
+          totalInvestido: inicial,
+          totalJuros: 0
+        }];
+
+        for (let i = 0; i < prazo; i++) {
+          const mes = i + 1;
+          const tr = rows[i];
+          const extra = Math.max(0, state.adicionais[mes] || 0);
+
+          const saldoInicial = saldoAtual;
+          const juros = saldoInicial * rate;
+          const saldoComJuros = saldoInicial + juros;
+          const saldoFinal = saldoComJuros + mensal + extra;
+
+          totalInvestido += mensal + extra;
+          totalExtras += extra;
+          totalJuros += juros;
+          saldoAtual = saldoFinal;
+
+          tr.querySelector(".cell-inicial").textContent = fmtNum(saldoInicial, 2);
+          tr.querySelector(".cell-juros").textContent = fmtNum(juros, 2);
+          tr.querySelector(".cell-saldo-juros").textContent = fmtNum(saldoComJuros, 2);
+          tr.querySelector(".cell-mensal").textContent = fmtNum(mensal, 2);
+          tr.querySelector(".cell-final").textContent = fmtNum(saldoFinal, 2);
+
+          lastSimRows.push({
+            mes,
+            saldoInicial,
+            juros,
+            saldoComJuros,
+            mensal,
+            extra,
+            saldoFinal,
+            totalInvestido,
+            totalJuros
+          });
+        }
+
+        // Atualiza KPIs
+        const pctGanho = totalInvestido > 0 ? (totalJuros / totalInvestido) * 100 : 0;
+        document.getElementById("kpi_investido").textContent = fmtBRL(totalInvestido);
+        document.getElementById("kpi_extras_info").textContent = `Extras: ${fmtBRL(totalExtras)}`;
+        document.getElementById("kpi_juros").textContent = fmtBRL(totalJuros);
+        document.getElementById("kpi_juros_pct").textContent = `+${fmtNum(pctGanho, 2)}% sobre aportes`;
+        document.getElementById("kpi_saldo").textContent = fmtBRL(saldoAtual);
+        document.getElementById("kpi_prazo_anos").textContent = `${fmtNum(prazo / 12, 1)} ${prazo === 12 ? "ano" : "anos"}`;
+
+        renderEvolutionChart(lastSimRows);
+      }
+
+      /* ========================================================= */
+      /* GRÁFICO DE LINHA INTERATIVO (SVG PURO)                    */
+      /* ========================================================= */
+      function renderEvolutionChart(points) {
+        const svg = document.getElementById("evolutionChart");
+        const container = document.getElementById("chartContainer");
+        const tooltip = document.getElementById("chartTooltip");
+
+        if (!points || points.length < 2) {
+          svg.innerHTML = "";
+          return;
+        }
+
+        const W = 1000;
+        const H = 220;
+        const padL = 78;
+        const padR = 20;
+        const padT = 16;
+        const padB = 28;
+        const plotW = W - padL - padR;
+        const plotH = H - padT - padB;
+
+        const maxVal = Math.max(
+          100,
+          ...points.map((p) => Math.max(p.saldoFinal, p.totalInvestido))
+        );
+        const minVal = 0;
+
+        const xScale = (idx) => padL + (idx / (points.length - 1)) * plotW;
+        const yScale = (val) => padT + plotH - ((val - minVal) / (maxVal - minVal)) * plotH;
+
+        let gridLines = "";
+        const ticks = 4;
+        for (let t = 0; t <= ticks; t++) {
+          const val = minVal + (t / ticks) * (maxVal - minVal);
+          const y = yScale(val);
+          gridLines += `
+            <line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="var(--border-subtle)" stroke-dasharray="3,3" stroke-width="1" />
+            <text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="var(--text-muted)" font-size="11" font-family="var(--font-mono)">
+              ${formatCompactBRL(val)}
+            </text>
+          `;
+        }
+
+        // Eixo X labels
+        let xLabels = "";
+        const step = Math.max(1, Math.ceil((points.length - 1) / 8));
+        for (let i = 0; i < points.length; i += step) {
+          const x = xScale(i);
+          xLabels += `
+            <text x="${x}" y="${H - 6}" text-anchor="middle" fill="var(--text-muted)" font-size="11" font-family="var(--font-mono)">
+              M${points[i].mes}
+            </text>
+          `;
+        }
+        if ((points.length - 1) % step !== 0) {
+          const lastIdx = points.length - 1;
+          xLabels += `
+            <text x="${xScale(lastIdx)}" y="${H - 6}" text-anchor="middle" fill="var(--text-muted)" font-size="11" font-family="var(--font-mono)">
+              M${points[lastIdx].mes}
+            </text>
+          `;
+        }
+
+        const pathSaldo = points
+          .map((p, i) => `${i === 0 ? "M" : "L"} ${xScale(i).toFixed(1)} ${yScale(p.saldoFinal).toFixed(1)}`)
+          .join(" ");
+
+        const areaSaldo = `${pathSaldo} L ${xScale(points.length - 1).toFixed(1)} ${yScale(0).toFixed(1)} L ${xScale(0).toFixed(1)} ${yScale(0).toFixed(1)} Z`;
+
+        const pathInvestido = points
+          .map((p, i) => `${i === 0 ? "M" : "L"} ${xScale(i).toFixed(1)} ${yScale(p.totalInvestido).toFixed(1)}`)
+          .join(" ");
+
+        svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+        svg.innerHTML = `
+          <defs>
+            <linearGradient id="saldoAreaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--accent-primary)" stop-opacity="0.28" />
+              <stop offset="100%" stop-color="var(--accent-primary)" stop-opacity="0.01" />
+            </linearGradient>
+          </defs>
+          ${gridLines}
+          ${xLabels}
+          <path d="${areaSaldo}" fill="url(#saldoAreaGrad)" />
+          <path d="${pathInvestido}" fill="none" stroke="var(--accent-secondary)" stroke-width="2.2" stroke-dasharray="5,4" />
+          <path d="${pathSaldo}" fill="none" stroke="var(--accent-primary)" stroke-width="2.8" />
+          <line id="chartHoverLine" x1="0" y1="${padT}" x2="0" y2="${padT + plotH}" stroke="var(--text-secondary)" stroke-width="1" stroke-dasharray="2,2" opacity="0" />
+          <circle id="chartDotSaldo" r="4.5" fill="var(--accent-primary)" stroke="var(--bg-card)" stroke-width="2" opacity="0" />
+          <circle id="chartDotInv" r="4" fill="var(--accent-secondary)" stroke="var(--bg-card)" stroke-width="2" opacity="0" />
+          <rect id="chartHitZone" x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="transparent" style="cursor: crosshair;" />
+        `;
+
+        const hitZone = svg.getElementById("chartHitZone");
+        const hoverLine = svg.getElementById("chartHoverLine");
+        const dotSaldo = svg.getElementById("chartDotSaldo");
+        const dotInv = svg.getElementById("chartDotInv");
+
+        function handlePointer(clientX) {
+          const rect = svg.getBoundingClientRect();
+          const relX = ((clientX - rect.left) / rect.width) * W;
+          const clampedX = Math.max(padL, Math.min(W - padR, relX));
+          const ratio = (clampedX - padL) / plotW;
+          const idx = Math.round(ratio * (points.length - 1));
+          const pt = points[idx];
+          if (!pt) return;
+
+          const cx = xScale(idx);
+          const cySaldo = yScale(pt.saldoFinal);
+          const cyInv = yScale(pt.totalInvestido);
+
+          hoverLine.setAttribute("x1", cx);
+          hoverLine.setAttribute("x2", cx);
+          hoverLine.setAttribute("opacity", "1");
+
+          dotSaldo.setAttribute("cx", cx);
+          dotSaldo.setAttribute("cy", cySaldo);
+          dotSaldo.setAttribute("opacity", "1");
+
+          dotInv.setAttribute("cx", cx);
+          dotInv.setAttribute("cy", cyInv);
+          dotInv.setAttribute("opacity", "1");
+
+          tooltip.innerHTML = `
+            <div class="chart-tooltip-title">${pt.mes === 0 ? "Início (Mês 0)" : `Mês ${pt.mes}`}</div>
+            <div class="chart-tooltip-row">
+              <span style="color: var(--accent-primary);">Saldo Total:</span>
+              <strong>${fmtBRL(pt.saldoFinal)}</strong>
+            </div>
+            <div class="chart-tooltip-row">
+              <span style="color: var(--accent-secondary);">Investido:</span>
+              <span>${fmtBRL(pt.totalInvestido)}</span>
+            </div>
+            <div class="chart-tooltip-row">
+              <span style="color: var(--text-secondary);">Juros Acum.:</span>
+              <span>${fmtBRL(pt.totalJuros)}</span>
+            </div>
+          `;
+
+          const containerRect = container.getBoundingClientRect();
+          const pxX = clientX - containerRect.left;
+          const flipLeft = pxX > containerRect.width * 0.65;
+          tooltip.style.left = flipLeft ? `${Math.max(8, pxX - 205)}px` : `${pxX + 14}px`;
+          tooltip.style.top = "12px";
+          tooltip.classList.add("visible");
+        }
+
+        hitZone.addEventListener("mousemove", (e) => handlePointer(e.clientX));
+        hitZone.addEventListener("touchmove", (e) => {
+          if (e.touches[0]) handlePointer(e.touches[0].clientX);
+        }, { passive: true });
+        hitZone.addEventListener("mouseleave", () => {
+          hoverLine.setAttribute("opacity", "0");
+          dotSaldo.setAttribute("opacity", "0");
+          dotInv.setAttribute("opacity", "0");
+          tooltip.classList.remove("visible");
+        });
+      }
+
+      function formatCompactBRL(val) {
+        if (val >= 1e6) return `R$ ${(val / 1e6).toFixed(1).replace(".", ",")}M`;
+        if (val >= 1e3) return `R$ ${(val / 1e3).toFixed(0)}k`;
+        return `R$ ${val.toFixed(0)}`;
+      }
+
+      /* ========================================================= */
+      /* EVENT LISTENERS, TEMA, ABAS E PERSISTÊNCIA                */
+      /* ========================================================= */
+      function applyTheme(theme) {
+        state.theme = theme;
+        document.documentElement.setAttribute("data-theme", theme);
+        document.getElementById("btnToggleTheme").textContent =
+          theme === "dark" ? "Tema: Dark" : "Tema: Light";
+        saveState();
+      }
+
+      function switchTab(tabId) {
+        state.activeTab = tabId;
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          const active = btn.dataset.tab === tabId;
+          btn.classList.toggle("active", active);
+          btn.setAttribute("aria-selected", String(active));
+        });
+        document.querySelectorAll(".view-section").forEach((sec) => {
+          sec.classList.toggle("active", sec.id === tabId);
+        });
+        if (tabId === "tab-simulador") {
+          recalculateSimulation();
+        }
+        saveState();
+      }
+
+      function hydrateInputsFromState() {
+        Object.entries(state.fields).forEach(([id, val]) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (el.tagName === "SELECT") {
+            el.value = String(val);
+          } else {
+            const type = el.dataset.type || "currency";
+            const decimals = parseInt(el.dataset.decimals || "2", 10);
+            el.value = formatInputDisplay(val, type, decimals);
+          }
+        });
+      }
+
+      function bindInputs() {
+        // Inputs padrão dos cards e topo do simulador
+        document.querySelectorAll(".fin-input, .fin-select").forEach((el) => {
+          const id = el.id;
+          if (!id) return;
+
+          if (el.tagName === "SELECT") {
+            el.addEventListener("change", () => {
+              state.fields[id] = el.value;
+              recalculateCalculators();
+              saveState();
+            });
+            return;
+          }
+
+          const type = el.dataset.type || "currency";
+          const decimals = parseInt(el.dataset.decimals || "2", 10);
+
+          el.addEventListener("focus", () => {
+            el.select();
+          });
+
+          el.addEventListener("input", () => {
+            const parsed = parseInputNumber(el.value, type);
+            state.fields[id] = parsed;
+            if (id.startsWith("sim_")) {
+              recalculateSimulation();
+            } else {
+              recalculateCalculators();
+            }
+            saveState();
+          });
+
+          el.addEventListener("blur", () => {
+            let val = state.fields[id] || 0;
+            if (id === "sim_prazo") {
+              val = Math.min(600, Math.max(1, Math.round(val)));
+              state.fields[id] = val;
+            }
+            el.value = formatInputDisplay(val, type, decimals);
+            if (id.startsWith("sim_")) recalculateSimulation();
+            else recalculateCalculators();
+            saveState();
+          });
+        });
+
+        // Delegação de eventos para inputs dinâmicos de "Investimento Adicional" na tabela
+        const tbody = document.getElementById("simTableBody");
+
+        tbody.addEventListener("focusin", (e) => {
+          if (e.target.classList.contains("table-extra-input")) {
+            e.target.select();
+          }
+        });
+
+        tbody.addEventListener("input", (e) => {
+          if (!e.target.classList.contains("table-extra-input")) return;
+          const month = parseInt(e.target.dataset.month, 10);
+          const val = Math.max(0, parseInputNumber(e.target.value, "currency"));
+
+          if (val > 0) {
+            state.adicionais[month] = val;
+            e.target.classList.add("has-value");
+          } else {
+            delete state.adicionais[month];
+            e.target.classList.remove("has-value");
+          }
+
+          recalculateSimulation();
+          saveState();
+        });
+
+        tbody.addEventListener("focusout", (e) => {
+          if (!e.target.classList.contains("table-extra-input")) return;
+          const month = parseInt(e.target.dataset.month, 10);
+          const val = state.adicionais[month] || 0;
+          e.target.value = val > 0 ? formatInputDisplay(val, "currency", 2) : "";
+        });
+      }
+
+      function bindToolbarButtons() {
+        // Abas
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+        });
+
+        // Tema
+        document.getElementById("btnToggleTheme").addEventListener("click", () => {
+          applyTheme(state.theme === "dark" ? "light" : "dark");
+        });
+
+        // Limpar Aportes Extras
+        document.getElementById("btnClearExtras").addEventListener("click", () => {
+          state.adicionais = {};
+          document.querySelectorAll(".table-extra-input").forEach((inp) => {
+            inp.value = "";
+            inp.classList.remove("has-value");
+          });
+          recalculateSimulation();
+          saveState();
+          showToast("Aportes adicionais zerados.");
+        });
+
+        // Exportar CSV da tabela mensal
+        document.getElementById("btnExportCsv").addEventListener("click", () => {
+          if (lastSimRows.length <= 1) return;
+          const header = [
+            "Mes",
+            "Saldo Inicial",
+            "Juros",
+            "Saldo + Juros",
+            "Investimento Mensal",
+            "Investimento Adicional",
+            "Saldo Final"
+          ].join(";");
+
+          const lines = lastSimRows.slice(1).map((r) => [
+            r.mes,
+            fmtNum(r.saldoInicial, 2),
+            fmtNum(r.juros, 2),
+            fmtNum(r.saldoComJuros, 2),
+            fmtNum(r.mensal, 2),
+            fmtNum(r.extra, 2),
+            fmtNum(r.saldoFinal, 2)
+          ].join(";"));
+
+          const csvContent = "\uFEFF" + [header, ...lines].join("\n");
+          downloadBlob(csvContent, "simulacao-investimentos.csv", "text/csv;charset=utf-8;");
+          showToast("Tabela exportada em CSV.");
+        });
+
+        // Exportar JSON
+        document.getElementById("btnExportJson").addEventListener("click", () => {
+          const payload = JSON.stringify(state, null, 2);
+          downloadBlob(payload, "cenarios-financeiros.json", "application/json");
+          showToast("Backup JSON exportado.");
+        });
+
+        // Importar JSON
+        const fileInput = document.getElementById("fileImportJson");
+        document.getElementById("btnImportJson").addEventListener("click", () => fileInput.click());
+        fileInput.addEventListener("change", (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            try {
+              const parsed = JSON.parse(String(reader.result));
+              if (!parsed || typeof parsed.fields !== "object") throw new Error();
+              state = {
+                theme: parsed.theme === "light" ? "light" : "dark",
+                activeTab: parsed.activeTab || "tab-calculadoras",
+                fields: { ...DEFAULTS.fields, ...parsed.fields },
+                adicionais: { ...(parsed.adicionais || {}) }
+              };
+              document.getElementById("simTableBody").innerHTML = "";
+              applyTheme(state.theme);
+              hydrateInputsFromState();
+              recalculateCalculators();
+              recalculateSimulation();
+              switchTab(state.activeTab);
+              showToast("Cenários importados com sucesso.");
+            } catch {
+              showToast("Arquivo JSON inválido.");
+            } finally {
+              fileInput.value = "";
+            }
+          };
+          reader.readAsText(file);
+        });
+
+        // Restaurar Padrão
+        document.getElementById("btnResetAll").addEventListener("click", () => {
+          const currentTheme = state.theme;
+          const currentTab = state.activeTab;
+          state = structuredClone(DEFAULTS);
+          state.theme = currentTheme;
+          state.activeTab = currentTab;
+          document.getElementById("simTableBody").innerHTML = "";
+          hydrateInputsFromState();
+          recalculateCalculators();
+          recalculateSimulation();
+          saveState();
+          showToast("Valores padrão restaurados.");
+        });
+      }
+
+      function downloadBlob(content, filename, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      // Inicialização
+      applyTheme(state.theme);
+      hydrateInputsFromState();
+      bindInputs();
+      bindToolbarButtons();
+      recalculateCalculators();
+      recalculateSimulation();
+      switchTab(state.activeTab);
+    })();
+  </script>
+</body>
+</html>
