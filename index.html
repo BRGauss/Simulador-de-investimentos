@@ -142,6 +142,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s ease;
+      white-space: nowrap;
     }
 
     .tab-btn:hover {
@@ -201,7 +202,7 @@
       letter-spacing: 0.06em;
       color: var(--text-secondary);
       font-weight: 700;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.85rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -209,14 +210,7 @@
     }
 
     /* Grids */
-    .utils-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .calcs-grid {
+    .utils-grid, .calcs-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1rem;
@@ -242,6 +236,8 @@
       .tab-btn {
         flex: 1;
         text-align: center;
+        padding: 0.45rem 0.5rem;
+        font-size: 0.8rem;
       }
     }
 
@@ -273,6 +269,13 @@
       letter-spacing: 0.01em;
     }
 
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-shrink: 0;
+    }
+
     .badge-tag {
       font-family: var(--font-mono);
       font-size: 0.68rem;
@@ -281,6 +284,54 @@
       background: rgba(56, 189, 248, 0.14);
       color: var(--accent-secondary);
       font-weight: 600;
+    }
+
+    /* Info Button & Collapsible Drawer */
+    .info-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-app);
+      color: var(--accent-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-grid;
+      place-items: center;
+      transition: all 0.15s ease;
+      line-height: 1;
+    }
+
+    .info-btn:hover,
+    .info-btn.active {
+      background: var(--accent-secondary);
+      border-color: var(--accent-secondary);
+      color: #0b0f17;
+    }
+
+    .info-drawer {
+      display: none;
+      background: var(--bg-app);
+      border-bottom: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--accent-secondary);
+      padding: 0.7rem 0.9rem;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    .info-drawer.open {
+      display: block;
+    }
+
+    .info-drawer p + p {
+      margin-top: 0.4rem;
+    }
+
+    .info-drawer strong {
+      color: var(--text-primary);
     }
 
     .card-body {
@@ -396,39 +447,7 @@
       display: block;
     }
 
-    /* Help Accordion */
-    .help-banner {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 0.75rem 1rem;
-      margin-bottom: 1.25rem;
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-    }
-
-    .help-banner summary {
-      cursor: pointer;
-      font-weight: 700;
-      color: var(--accent-secondary);
-      user-select: none;
-    }
-
-    .help-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 0.65rem;
-      margin-top: 0.75rem;
-      padding-top: 0.65rem;
-      border-top: 1px solid var(--border-subtle);
-    }
-
-    .help-item strong {
-      color: var(--text-primary);
-      font-family: var(--font-mono);
-    }
-
-    /* TAB 2: Simulador Mensal */
+    /* TAB 3: Simulador Mensal */
     .sim-top-grid {
       display: grid;
       grid-template-columns: 1.5fr 1fr;
@@ -601,6 +620,12 @@
       border-bottom: 1px solid var(--border-subtle);
     }
 
+    .table-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
     .table-scroll {
       width: 100%;
       overflow-x: auto;
@@ -732,16 +757,19 @@
         <div class="brand-badge">VF</div>
         <div>
           <h1>Calculadora Financeira Pro</h1>
-          <span>Funções Financeiras & Evolução de Aportes</span>
+          <span>Conversores, Cálculos & Simulador de Aportes</span>
         </div>
       </div>
 
       <nav class="tabs" role="tablist">
-        <button class="tab-btn active" data-tab="tab-calculadoras" role="tab" aria-selected="true">
-          Calculadoras & Conversores
+        <button class="tab-btn active" data-tab="tab-conversores" role="tab" aria-selected="true">
+          Conversores
+        </button>
+        <button class="tab-btn" data-tab="tab-calculadoras" role="tab" aria-selected="false">
+          Calculadoras
         </button>
         <button class="tab-btn" data-tab="tab-simulador" role="tab" aria-selected="false">
-          Simulador Mensal (Aportes)
+          Simulador Mensal
         </button>
       </nav>
 
@@ -758,24 +786,11 @@
   <main class="container">
 
     <!-- ========================================================= -->
-    <!-- ABA 1: FUNÇÕES FINANCEIRAS DO EXCEL & CONVERSORES         -->
+    <!-- ABA 1: CONVERSORES                                        -->
     <!-- ========================================================= -->
-    <section id="tab-calculadoras" class="view-section active">
-
-      <details class="help-banner">
-        <summary>Guia Rápido dos Parâmetros Financeiros (VF, VP, PGTO, NPER, TAXA, TIPO)</summary>
-        <div class="help-grid">
-          <div class="help-item"><strong>Taxa:</strong> Taxa de juros por período (ex: taxa ao mês).</div>
-          <div class="help-item"><strong>Nper:</strong> Número total de períodos/meses da operação.</div>
-          <div class="help-item"><strong>Pgto:</strong> Depósito ou parcela recorrente feita a cada período.</div>
-          <div class="help-item"><strong>Vp:</strong> Valor presente (aporte inicial ou valor financiado).</div>
-          <div class="help-item"><strong>Vf:</strong> Valor futuro desejado ao final dos períodos.</div>
-          <div class="help-item"><strong>Tipo (0 ou 1):</strong> <code>0</code> = Vencimento no fim do mês (postecipado); <code>1</code> = No início do mês (antecipado).</div>
-        </div>
-      </details>
-
+    <section id="tab-conversores" class="view-section active">
       <div class="section-title">
-        <span>Conversores de Taxa, Prazo e Simulação de Renda</span>
+        <span>Conversores de Taxa, Prazo e Renda Passiva</span>
       </div>
 
       <div class="utils-grid">
@@ -783,13 +798,20 @@
         <article class="card">
           <div class="card-header">
             <h2>Conversor de Taxas Equivalentes</h2>
-            <span class="badge-tag">JUROS COMPOSTOS</span>
+            <div class="header-controls">
+              <span class="badge-tag">JUROS COMPOSTOS</span>
+              <button type="button" class="info-btn" data-info="info-conv-taxas" aria-expanded="false" title="Explicação e instruções">i</button>
+            </div>
+          </div>
+          <div class="info-drawer" id="info-conv-taxas">
+            <p><strong>O que calcula:</strong> Converte taxas de juros compostos entre períodos anuais, mensais e diários (base 252 dias úteis) preservando a mesma rentabilidade efetiva.</p>
+            <p><strong>Como preencher:</strong> Digite a <em>Taxa Anual</em> no bloco superior para obter a mensal e a diária, ou preencha a <em>Taxa Mensal</em> no bloco inferior para descobrir a taxa anual equivalente.</p>
           </div>
           <div class="card-body">
             <div class="field-row">
               <label for="convTaxaAnual">Taxa Anual</label>
               <div class="input-wrap">
-                <input id="convTaxaAnual" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="10,00" />
+                <input id="convTaxaAnual" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="10,00" />
                 <span class="input-suffix">%</span>
               </div>
             </div>
@@ -805,7 +827,7 @@
             <div class="field-row">
               <label for="convTaxaMensalIn">Taxa Mensal</label>
               <div class="input-wrap">
-                <input id="convTaxaMensalIn" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="1,00" />
+                <input id="convTaxaMensalIn" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="1,00" />
                 <span class="input-suffix">%</span>
               </div>
             </div>
@@ -821,13 +843,20 @@
         <article class="card">
           <div class="card-header">
             <h2>Conversor de Prazos</h2>
-            <span class="badge-tag">TEMPO</span>
+            <div class="header-controls">
+              <span class="badge-tag">TEMPO</span>
+              <button type="button" class="info-btn" data-info="info-conv-prazos" aria-expanded="false" title="Explicação e instruções">i</button>
+            </div>
+          </div>
+          <div class="info-drawer" id="info-conv-prazos">
+            <p><strong>O que calcula:</strong> Transforma prazos entre dias (mês comercial de 30 dias), meses e anos.</p>
+            <p><strong>Como preencher:</strong> Cada bloco funciona de forma independente. Preencha <em>Dias</em>, <em>Anos</em> ou <em>Meses</em> para visualizar a conversão imediata logo abaixo.</p>
           </div>
           <div class="card-body">
             <div class="field-row">
               <label for="convDias">Dias (base 30)</label>
               <div class="input-wrap">
-                <input id="convDias" class="fin-input" data-type="int" value="518" />
+                <input id="convDias" type="text" inputmode="numeric" autocomplete="off" class="fin-input" data-type="int" value="518" />
               </div>
             </div>
             <div class="field-row">
@@ -838,7 +867,7 @@
             <div class="field-row">
               <label for="convAnos">Anos</label>
               <div class="input-wrap">
-                <input id="convAnos" class="fin-input" data-type="float" data-decimals="1" value="15" />
+                <input id="convAnos" type="text" inputmode="decimal" autocomplete="off" class="fin-input" data-type="float" data-decimals="1" value="15" />
               </div>
             </div>
             <div class="field-row">
@@ -849,7 +878,7 @@
             <div class="field-row">
               <label for="convMeses">Meses</label>
               <div class="input-wrap">
-                <input id="convMeses" class="fin-input" data-type="int" value="120" />
+                <input id="convMeses" type="text" inputmode="numeric" autocomplete="off" class="fin-input" data-type="int" value="120" />
               </div>
             </div>
             <div class="field-row">
@@ -863,13 +892,20 @@
         <article class="card">
           <div class="card-header">
             <h2>Simulação de Renda Passiva</h2>
-            <span class="badge-tag">PERPETUIDADE</span>
+            <div class="header-controls">
+              <span class="badge-tag">PERPETUIDADE</span>
+              <button type="button" class="info-btn" data-info="info-renda-passiva" aria-expanded="false" title="Explicação e instruções">i</button>
+            </div>
+          </div>
+          <div class="info-drawer" id="info-renda-passiva">
+            <p><strong>O que calcula:</strong> Estima o patrimônio necessário para gerar uma renda mensal sem consumir o capital principal, ou quanto um patrimônio atual gera por mês e por ano.</p>
+            <p><strong>Como preencher:</strong> Informe a <em>Taxa Mensal Líquida</em> no topo. Depois, preencha <em>Para ganhar por mês</em> (para saber quanto acumular) ou <em>Se eu tiver acumulado</em> (para calcular os rendimentos).</p>
           </div>
           <div class="card-body">
             <div class="field-row">
               <label for="simTaxa">Taxa Mensal Líquida</label>
               <div class="input-wrap">
-                <input id="simTaxa" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,80" />
+                <input id="simTaxa" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,80" />
                 <span class="input-suffix">%</span>
               </div>
             </div>
@@ -878,7 +914,7 @@
               <label for="simQueroGanhar">Para ganhar por mês</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="simQueroGanhar" class="fin-input has-prefix" data-type="currency" value="2.000,00" />
+                <input id="simQueroGanhar" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="2.000,00" />
               </div>
             </div>
             <div class="field-row">
@@ -890,7 +926,7 @@
               <label for="simSeEuTiver">Se eu tiver acumulado</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="simSeEuTiver" class="fin-input has-prefix" data-type="currency" value="339.784,00" />
+                <input id="simSeEuTiver" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="339.784,00" />
               </div>
             </div>
             <div class="field-row">
@@ -904,7 +940,12 @@
           </div>
         </article>
       </div>
+    </section>
 
+    <!-- ========================================================= -->
+    <!-- ABA 2: CALCULADORAS FINANCEIRAS                           -->
+    <!-- ========================================================= -->
+    <section id="tab-calculadoras" class="view-section">
       <div class="section-title">
         <span>Calculadoras Financeiras (Padrão Excel)</span>
       </div>
@@ -914,33 +955,40 @@
         <article class="card">
           <div class="card-header">
             <h2>Valor Futuro</h2>
-            <span class="badge-tag">VF</span>
+            <div class="header-controls">
+              <span class="badge-tag">VF</span>
+              <button type="button" class="info-btn" data-info="info-calc-vf" aria-expanded="false" title="Explicação e instruções">i</button>
+            </div>
+          </div>
+          <div class="info-drawer" id="info-calc-vf">
+            <p><strong>O que calcula:</strong> Projeta o montante acumulado ao final de um investimento com juros compostos, separando o total investido dos juros produzidos.</p>
+            <p><strong>Como preencher:</strong> Informe a entrada inicial (<em>VP</em>), o aporte mensal (<em>PGTO</em>), o prazo em meses (<em>NPER</em>), a <em>Taxa ao mês</em> e o <em>Vencimento</em> (<code>0</code> = aporte no fim do mês; <code>1</code> = aporte no início do mês).</p>
           </div>
           <div class="card-body">
             <div class="field-row">
               <label for="vf_vp">Valor presente (entrada) - VP</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="vf_vp" class="fin-input has-prefix" data-type="currency" value="1.000,00" />
+                <input id="vf_vp" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="1.000,00" />
               </div>
             </div>
             <div class="field-row">
               <label for="vf_pgto">Depósitos/Parcelas - PGTO</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="vf_pgto" class="fin-input has-prefix" data-type="currency" value="1.500,00" />
+                <input id="vf_pgto" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="1.500,00" />
               </div>
             </div>
             <div class="field-row">
               <label for="vf_nper">Prazo em meses - NPER</label>
               <div class="input-wrap">
-                <input id="vf_nper" class="fin-input" data-type="int" value="180" />
+                <input id="vf_nper" type="text" inputmode="numeric" autocomplete="off" class="fin-input" data-type="int" value="180" />
               </div>
             </div>
             <div class="field-row">
               <label for="vf_taxa">Taxa ao mês</label>
               <div class="input-wrap">
-                <input id="vf_taxa" class="fin-input has-suffix" data-type="rate" data-decimals="3" value="0,800" />
+                <input id="vf_taxa" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-suffix" data-type="rate" data-decimals="3" value="0,800" />
                 <span class="input-suffix">%</span>
               </div>
             </div>
@@ -971,13 +1019,20 @@
         <article class="card">
           <div class="card-header">
             <h2>Valor Presente</h2>
-            <span class="badge-tag">VP</span>
+            <div class="header-controls">
+              <span class="badge-tag">VP</span>
+              <button type="button" class="info-btn" data-info="info-calc-vp" aria-expanded="false" title="Explicação e instruções">i</button>
+            </div>
+          </div>
+          <div class="info-drawer" id="info-calc-vp">
+            <p><strong>O que calcula:</strong> Determina quanto você precisa aplicar hoje (aporte único) para atingir um valor futuro desejado, ou traz a valor presente uma série de parcelas.</p>
+            <p><strong>Como preencher:</strong> Preencha a <em>Taxa ao mês</em>, o <em>Prazo (NPER)</em> e o <em>Valor futuro (resgate)</em> (mantenha <em>PGTO</em> em <code>0,00</code> para aporte único). Para calcular o valor atual de parcelas, deixe o <em>Valor futuro</em> em <code>0,00</code> e informe o <em>PGTO</em>.</p>
           </div>
           <div class="card-body">
             <div class="field-row">
               <label for="vp_taxa">Taxa ao mês</label>
               <div class="input-wrap">
-                <input id="vp_taxa" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,70" />
+                <input id="vp_taxa" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,70" />
                 <span class="input-suffix">%</span>
               </div>
             </div>
@@ -985,20 +1040,20 @@
               <label for="vp_pgto">Depósitos/Parcelas - PGTO</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="vp_pgto" class="fin-input has-prefix" data-type="currency" value="0,00" />
+                <input id="vp_pgto" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="0,00" />
               </div>
             </div>
             <div class="field-row">
               <label for="vp_nper">Prazo em meses - NPER</label>
               <div class="input-wrap">
-                <input id="vp_nper" class="fin-input" data-type="int" value="120" />
+                <input id="vp_nper" type="text" inputmode="numeric" autocomplete="off" class="fin-input" data-type="int" value="120" />
               </div>
             </div>
             <div class="field-row">
               <label for="vp_vf">Valor futuro (resgate)</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="vp_vf" class="fin-input has-prefix" data-type="currency" value="300.000,00" />
+                <input id="vp_vf" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="300.000,00" />
               </div>
             </div>
             <div class="field-row">
@@ -1021,34 +1076,41 @@
         <article class="card">
           <div class="card-header">
             <h2>Taxa de Juros</h2>
-            <span class="badge-tag">TAXA</span>
+            <div class="header-controls">
+              <span class="badge-tag">TAXA</span>
+              <button type="button" class="info-btn" data-info="info-calc-taxa" aria-expanded="false" title="Explicação e instruções">i</button>
+            </div>
+          </div>
+          <div class="info-drawer" id="info-calc-taxa">
+            <p><strong>O que calcula:</strong> Descobre a taxa de juros mensal e anual efetiva de um investimento ou financiamento a partir dos valores conhecidos da operação.</p>
+            <p><strong>Como preencher:</strong> Informe o <em>Prazo (NPER)</em>, o <em>PGTO</em>, o <em>VP</em> e o <em>VF</em>. Em financiamentos ou empréstimos sem saldo final, deixe o <em>VF</em> em <code>0,00</code>.</p>
           </div>
           <div class="card-body">
             <div class="field-row">
               <label for="tx_nper">Prazo em meses - NPER</label>
               <div class="input-wrap">
-                <input id="tx_nper" class="fin-input" data-type="int" value="10" />
+                <input id="tx_nper" type="text" inputmode="numeric" autocomplete="off" class="fin-input" data-type="int" value="10" />
               </div>
             </div>
             <div class="field-row">
               <label for="tx_pgto">Depósitos/Parcelas - PGTO</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="tx_pgto" class="fin-input has-prefix" data-type="currency" value="927,00" />
+                <input id="tx_pgto" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="927,00" />
               </div>
             </div>
             <div class="field-row">
               <label for="tx_vp">Valor presente (entrada) - VP</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="tx_vp" class="fin-input has-prefix" data-type="currency" value="927,00" />
+                <input id="tx_vp" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="927,00" />
               </div>
             </div>
             <div class="field-row">
               <label for="tx_vf">Valor futuro (resgate) - VF</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="tx_vf" class="fin-input has-prefix" data-type="currency" value="12.386,00" />
+                <input id="tx_vf" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="12.386,00" />
               </div>
             </div>
             <div class="field-row">
@@ -1075,27 +1137,34 @@
         <article class="card">
           <div class="card-header">
             <h2>Juros Acumulados (Price)</h2>
-            <span class="badge-tag">PGTOCAPACUM</span>
+            <div class="header-controls">
+              <span class="badge-tag">PGTOCAPACUM</span>
+              <button type="button" class="info-btn" data-info="info-calc-ca" aria-expanded="false" title="Explicação e instruções">i</button>
+            </div>
+          </div>
+          <div class="info-drawer" id="info-calc-ca">
+            <p><strong>O que calcula:</strong> Soma exclusivamente o total de juros pagos entre duas parcelas de um empréstimo pelo sistema Price, além de calcular o valor da parcela fixa.</p>
+            <p><strong>Como preencher:</strong> Informe a <em>Taxa ao mês</em>, o <em>Prazo total (NPER)</em>, o valor do <em>Empréstimo (VP)</em> e o intervalo de parcelas em <em>Primeiro pagamento</em> (ex: <code>1</code>) e <em>Último pagamento</em> (ex: <code>120</code>).</p>
           </div>
           <div class="card-body">
             <div class="field-row">
               <label for="ca_taxa">Taxa ao mês</label>
               <div class="input-wrap">
-                <input id="ca_taxa" class="fin-input has-suffix" data-type="rate" data-decimals="3" value="0,600" />
+                <input id="ca_taxa" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-suffix" data-type="rate" data-decimals="3" value="0,600" />
                 <span class="input-suffix">%</span>
               </div>
             </div>
             <div class="field-row">
               <label for="ca_nper">Prazo em meses - NPER</label>
               <div class="input-wrap">
-                <input id="ca_nper" class="fin-input" data-type="int" value="120" />
+                <input id="ca_nper" type="text" inputmode="numeric" autocomplete="off" class="fin-input" data-type="int" value="120" />
               </div>
             </div>
             <div class="field-row">
               <label for="ca_vp">Empréstimo (Valor presente)</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="ca_vp" class="fin-input has-prefix" data-type="currency" value="129.892,71" />
+                <input id="ca_vp" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="129.892,71" />
               </div>
             </div>
             <div class="field-row">
@@ -1108,13 +1177,13 @@
             <div class="field-row">
               <label for="ca_ini">Primeiro pagamento</label>
               <div class="input-wrap">
-                <input id="ca_ini" class="fin-input" data-type="int" value="1" />
+                <input id="ca_ini" type="text" inputmode="numeric" autocomplete="off" class="fin-input" data-type="int" value="1" />
               </div>
             </div>
             <div class="field-row">
               <label for="ca_fim">Último pagamento</label>
               <div class="input-wrap">
-                <input id="ca_fim" class="fin-input" data-type="int" value="120" />
+                <input id="ca_fim" type="text" inputmode="numeric" autocomplete="off" class="fin-input" data-type="int" value="120" />
               </div>
             </div>
             <div class="divider"></div>
@@ -1134,13 +1203,20 @@
         <article class="card">
           <div class="card-header">
             <h2>Prazo de Financiamento</h2>
-            <span class="badge-tag">NPER - DÍVIDA</span>
+            <div class="header-controls">
+              <span class="badge-tag">NPER - DÍVIDA</span>
+              <button type="button" class="info-btn" data-info="info-calc-npf" aria-expanded="false" title="Explicação e instruções">i</button>
+            </div>
+          </div>
+          <div class="info-drawer" id="info-calc-npf">
+            <p><strong>O que calcula:</strong> Calcula em quantos meses uma dívida ou financiamento será quitado dado um valor de parcela fixa, exibindo o montante total desembolsado e os juros totais.</p>
+            <p><strong>Como preencher:</strong> Preencha a <em>Taxa ao mês</em>, a <em>Parcela mensal (PGTO)</em> que você pagará por mês e o <em>Valor da dívida / saldo</em> atual.</p>
           </div>
           <div class="card-body">
             <div class="field-row">
               <label for="npf_taxa">Taxa ao mês</label>
               <div class="input-wrap">
-                <input id="npf_taxa" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,08" />
+                <input id="npf_taxa" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,08" />
                 <span class="input-suffix">%</span>
               </div>
             </div>
@@ -1148,14 +1224,14 @@
               <label for="npf_pgto">Parcela mensal - PGTO</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="npf_pgto" class="fin-input has-prefix" data-type="currency" value="1.000,00" />
+                <input id="npf_pgto" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="1.000,00" />
               </div>
             </div>
             <div class="field-row">
               <label for="npf_vp">Valor da dívida / saldo</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="npf_vp" class="fin-input has-prefix" data-type="currency" value="1.263,22" />
+                <input id="npf_vp" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="1.263,22" />
               </div>
             </div>
             <div class="field-row">
@@ -1186,13 +1262,20 @@
         <article class="card">
           <div class="card-header">
             <h2>Prazo de Investimento</h2>
-            <span class="badge-tag">NPER - META</span>
+            <div class="header-controls">
+              <span class="badge-tag">NPER - META</span>
+              <button type="button" class="info-btn" data-info="info-calc-npi" aria-expanded="false" title="Explicação e instruções">i</button>
+            </div>
+          </div>
+          <div class="info-drawer" id="info-calc-npi">
+            <p><strong>O que calcula:</strong> Estima quantos meses serão necessários para atingir um patrimônio objetivo combinando aporte inicial, depósitos mensais e juros compostos.</p>
+            <p><strong>Como preencher:</strong> Informe a <em>Taxa ao mês</em>, os <em>Depósitos/Parcelas (PGTO)</em>, a <em>Entrada (VP)</em> inicial e o <em>Valor futuro (objetivo)</em> desejado.</p>
           </div>
           <div class="card-body">
             <div class="field-row">
               <label for="npi_taxa">Taxa ao mês</label>
               <div class="input-wrap">
-                <input id="npi_taxa" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,60" />
+                <input id="npi_taxa" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,60" />
                 <span class="input-suffix">%</span>
               </div>
             </div>
@@ -1200,21 +1283,21 @@
               <label for="npi_pgto">Depósitos/Parcelas - PGTO</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="npi_pgto" class="fin-input has-prefix" data-type="currency" value="3.000,00" />
+                <input id="npi_pgto" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="3.000,00" />
               </div>
             </div>
             <div class="field-row">
               <label for="npi_vp">Entrada (Valor presente)</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="npi_vp" class="fin-input has-prefix" data-type="currency" value="13.000,00" />
+                <input id="npi_vp" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="13.000,00" />
               </div>
             </div>
             <div class="field-row">
               <label for="npi_vf">Valor futuro (objetivo)</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input id="npi_vf" class="fin-input has-prefix" data-type="currency" value="400.000,00" />
+                <input id="npi_vf" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="400.000,00" />
               </div>
             </div>
             <div class="field-row">
@@ -1248,7 +1331,7 @@
     </section>
 
     <!-- ========================================================= -->
-    <!-- ABA 2: SIMULADOR MENSAL COM APORTES ADICIONAIS            -->
+    <!-- ABA 3: SIMULADOR MENSAL COM APORTES ADICIONAIS            -->
     <!-- ========================================================= -->
     <section id="tab-simulador" class="view-section">
       <div class="sim-top-grid">
@@ -1256,7 +1339,14 @@
         <article class="card">
           <div class="card-header">
             <h2>Parâmetros da Simulação</h2>
-            <span class="badge-tag">JUROS SOBRE SALDO INICIAL</span>
+            <div class="header-controls">
+              <span class="badge-tag">JUROS SOBRE SALDO INICIAL</span>
+              <button type="button" class="info-btn" data-info="info-sim-params" aria-expanded="false" title="Explicação e instruções">i</button>
+            </div>
+          </div>
+          <div class="info-drawer" id="info-sim-params">
+            <p><strong>O que calcula:</strong> Simula a evolução mensal do patrimônio aplicando os juros sobre o saldo inicial de cada mês e somando os aportes realizados no período.</p>
+            <p><strong>Como preencher:</strong> Preencha o <em>Investimento Inicial</em>, o <em>Investimento Mensal</em> padrão, o <em>Prazo (meses)</em> e a <em>Rentabilidade Mês (%)</em>. Todos os indicadores, o gráfico e a tabela são recalculados em tempo real.</p>
           </div>
           <div class="card-body">
             <div class="sim-inputs-grid">
@@ -1264,26 +1354,26 @@
                 <label for="sim_inicial">Investimento Inicial</label>
                 <div class="input-wrap">
                   <span class="input-prefix">R$</span>
-                  <input id="sim_inicial" class="fin-input has-prefix" data-type="currency" value="20.000,00" />
+                  <input id="sim_inicial" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="20.000,00" />
                 </div>
               </div>
               <div class="sim-field">
                 <label for="sim_mensal">Investimento Mensal</label>
                 <div class="input-wrap">
                   <span class="input-prefix">R$</span>
-                  <input id="sim_mensal" class="fin-input has-prefix" data-type="currency" value="1.000,00" />
+                  <input id="sim_mensal" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-prefix" data-type="currency" value="1.000,00" />
                 </div>
               </div>
               <div class="sim-field">
                 <label for="sim_prazo">Prazo (meses)</label>
                 <div class="input-wrap">
-                  <input id="sim_prazo" class="fin-input" data-type="int" value="12" />
+                  <input id="sim_prazo" type="text" inputmode="numeric" autocomplete="off" class="fin-input" data-type="int" value="12" />
                 </div>
               </div>
               <div class="sim-field">
                 <label for="sim_rentab">Rentabilidade Mês</label>
                 <div class="input-wrap">
-                  <input id="sim_rentab" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,79" />
+                  <input id="sim_rentab" type="text" inputmode="decimal" autocomplete="off" class="fin-input has-suffix" data-type="rate" data-decimals="2" value="0,79" />
                   <span class="input-suffix">%</span>
                 </div>
               </div>
@@ -1329,16 +1419,23 @@
       <!-- Tabela Mês a Mês -->
       <article class="card">
         <div class="table-toolbar">
-          <div>
-            <strong style="font-size: 0.86rem;">Demonstrativo Mensal Detalhado</strong>
-            <span style="display: block; font-size: 0.74rem; color: var(--text-secondary);">
-              Preencha <strong>Investimento Adicional</strong> em qualquer mês para recalcular automaticamente os meses seguintes.
-            </span>
+          <div class="table-title-group">
+            <div>
+              <strong style="font-size: 0.86rem;">Demonstrativo Mensal Detalhado</strong>
+              <span style="display: block; font-size: 0.74rem; color: var(--text-secondary);">
+                Aportes mensais automáticos e aportes adicionais editáveis linha a linha.
+              </span>
+            </div>
+            <button type="button" class="info-btn" data-info="info-sim-tabela" aria-expanded="false" title="Explicação e instruções">i</button>
           </div>
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
             <button class="btn-icon" id="btnClearExtras">Limpar Aportes Extras</button>
             <button class="btn-icon" id="btnExportCsv">Exportar CSV</button>
           </div>
+        </div>
+        <div class="info-drawer" id="info-sim-tabela">
+          <p><strong>O que calcula:</strong> Exibe o extrato mês a mês com saldo de abertura, juros rendidos no mês, aporte regular, aporte adicional e saldo de fechamento.</p>
+          <p><strong>Como preencher:</strong> A coluna <em>Investimento Mensal</em> é preenchida automaticamente até o limite do prazo. Caso faça aportes extraordinários (bônus, 13º salário, vendas), preencha diretamente a coluna <em>Investimento Adicional</em> no mês correspondente para recalcular todos os meses seguintes.</p>
         </div>
         <div class="table-scroll">
           <table class="sim-table">
@@ -1368,10 +1465,11 @@
       "use strict";
 
       const STORAGE_KEY = "calc_fin_pro_state_v1";
+      const VALID_TABS = ["tab-conversores", "tab-calculadoras", "tab-simulador"];
 
       const DEFAULTS = {
         theme: "dark",
-        activeTab: "tab-calculadoras",
+        activeTab: "tab-conversores",
         fields: {
           convTaxaAnual: 10.0,
           convTaxaMensalIn: 1.0,
@@ -1427,9 +1525,10 @@
           const raw = localStorage.getItem(STORAGE_KEY);
           if (!raw) return structuredClone(DEFAULTS);
           const parsed = JSON.parse(raw);
+          const tab = VALID_TABS.includes(parsed.activeTab) ? parsed.activeTab : DEFAULTS.activeTab;
           return {
             theme: parsed.theme === "light" ? "light" : "dark",
-            activeTab: parsed.activeTab || "tab-calculadoras",
+            activeTab: tab,
             fields: { ...DEFAULTS.fields, ...(parsed.fields || {}) },
             adicionais: { ...(parsed.adicionais || {}) }
           };
@@ -1442,7 +1541,7 @@
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         } catch {
-          // Ignora erro de quota caso navegador restrinja storage local
+          // Ignora erro caso storage local esteja indisponível
         }
       }
 
@@ -1511,7 +1610,6 @@
       /* MOTOR MATEMÁTICO FINANCEIRO (PARIDADE EXCEL)              */
       /* ========================================================= */
 
-      // 1. Valor Futuro (VF)
       function calcVF(rate, nper, pgto, vp, tipo) {
         if (Math.abs(rate) < 1e-10) {
           return vp + pgto * nper;
@@ -1520,21 +1618,18 @@
         return vp * factor + pgto * ((factor - 1) / rate) * (1 + rate * tipo);
       }
 
-      // 2. Valor Presente (VP)
       function calcVP(rate, nper, pgto, vf, tipo) {
         if (Math.abs(rate) < 1e-10) {
           return vf === 0 ? pgto * nper : vf - pgto * nper;
         }
         const factor = Math.pow(1 + rate, nper);
         const annuityFV = pgto * ((factor - 1) / rate) * (1 + rate * tipo);
-        // Se VF = 0, retorna o valor presente da série de pagamentos PGTO
         if (Math.abs(vf) < 1e-9 && Math.abs(pgto) > 0) {
           return annuityFV / factor;
         }
         return (vf - annuityFV) / factor;
       }
 
-      // 3. Taxa de Juros (TAXA) - Solver Híbrido Newton-Raphson + Bisseção
       function calcTAXA(nper, pgto, vp, vf, tipo) {
         if (nper <= 0) return NaN;
 
@@ -1552,7 +1647,6 @@
           return vp * pow + pgto * (1 + i * tipo) * ((pow - 1) / i) - vf;
         }
 
-        // Newton-Raphson inicial
         let guess = 0.01;
         for (let iter = 0; iter < 80; iter++) {
           const y = f(guess);
@@ -1566,7 +1660,6 @@
           guess = next;
         }
 
-        // Fallback por Bisseção garantindo robustez
         let low = -0.99;
         let high = 5.0;
         let fLow = f(low);
@@ -1589,7 +1682,6 @@
         return (low + high) / 2;
       }
 
-      // 4. Juros Acumulados Price (PGTOCAPACUM / CUMIPMT)
       function calcPGTOCAPACUM(rate, nper, vp, ini, fim, tipo) {
         if (nper <= 0 || vp <= 0 || ini < 1 || fim < ini || fim > nper) {
           return { juros: NaN, pgto: NaN };
@@ -1608,9 +1700,6 @@
           if (tipo === 1 && p === 1) {
             jurosPeriodo = 0;
             saldo -= pgto;
-          } else if (tipo === 1) {
-            jurosPeriodo = saldo * rate;
-            saldo = saldo + jurosPeriodo - pgto;
           } else {
             jurosPeriodo = saldo * rate;
             saldo = saldo + jurosPeriodo - pgto;
@@ -1624,16 +1713,14 @@
         return { juros: jurosAcum, pgto };
       }
 
-      // 5. NPER Financiamento (Dívida VP -> 0)
       function calcNPERFinanciamento(rate, pgto, vp, tipo) {
         if (pgto <= 0 || vp <= 0) return NaN;
         if (Math.abs(rate) < 1e-10) return vp / pgto;
         const pAdj = pgto * (1 + rate * tipo);
-        if (pAdj <= vp * rate) return NaN; // Parcela não cobre juros
+        if (pAdj <= vp * rate) return NaN;
         return -Math.log(1 - (vp * rate) / pAdj) / Math.log(1 + rate);
       }
 
-      // 6. NPER Investimento (VP + PGTO -> VF)
       function calcNPERInvestimento(rate, pgto, vp, vf, tipo) {
         if (vf <= vp) return 0;
         if (Math.abs(rate) < 1e-10) {
@@ -1647,7 +1734,7 @@
       }
 
       /* ========================================================= */
-      /* RECÁLCULO DA ABA 1 (CALCULADORAS & CONVERSORES)           */
+      /* RECÁLCULO DOS CONVERSORES & CALCULADORAS                  */
       /* ========================================================= */
       function recalculateCalculators() {
         const f = state.fields;
@@ -1770,7 +1857,7 @@
       }
 
       /* ========================================================= */
-      /* ABA 2: SIMULADOR MENSAL (CLUBE DOS POUPADORES)            */
+      /* SIMULADOR MENSAL (CLUBE DOS POUPADORES)                   */
       /* ========================================================= */
       function buildSimulationTableStructure(prazo) {
         const tbody = document.getElementById("simTableBody");
@@ -1802,6 +1889,8 @@
             <td class="col-extra">
               <input
                 type="text"
+                inputmode="decimal"
+                autocomplete="off"
                 class="table-extra-input ${extraVal > 0 ? "has-value" : ""}"
                 data-month="${m}"
                 placeholder="0,00"
@@ -1874,7 +1963,6 @@
           });
         }
 
-        // Atualiza KPIs
         const pctGanho = totalInvestido > 0 ? (totalJuros / totalInvestido) * 100 : 0;
         document.getElementById("kpi_investido").textContent = fmtBRL(totalInvestido);
         document.getElementById("kpi_extras_info").textContent = `Extras: ${fmtBRL(totalExtras)}`;
@@ -1930,7 +2018,6 @@
           `;
         }
 
-        // Eixo X labels
         let xLabels = "";
         const step = Math.max(1, Math.ceil((points.length - 1) / 8));
         for (let i = 0; i < points.length; i += step) {
@@ -2052,7 +2139,7 @@
       }
 
       /* ========================================================= */
-      /* EVENT LISTENERS, TEMA, ABAS E PERSISTÊNCIA                */
+      /* EVENT LISTENERS, INFO DRAWERS, TEMA, ABAS E PERSISTÊNCIA  */
       /* ========================================================= */
       function applyTheme(theme) {
         state.theme = theme;
@@ -2063,16 +2150,17 @@
       }
 
       function switchTab(tabId) {
-        state.activeTab = tabId;
+        const target = VALID_TABS.includes(tabId) ? tabId : DEFAULTS.activeTab;
+        state.activeTab = target;
         document.querySelectorAll(".tab-btn").forEach((btn) => {
-          const active = btn.dataset.tab === tabId;
+          const active = btn.dataset.tab === target;
           btn.classList.toggle("active", active);
           btn.setAttribute("aria-selected", String(active));
         });
         document.querySelectorAll(".view-section").forEach((sec) => {
-          sec.classList.toggle("active", sec.id === tabId);
+          sec.classList.toggle("active", sec.id === target);
         });
-        if (tabId === "tab-simulador") {
+        if (target === "tab-simulador") {
           recalculateSimulation();
         }
         saveState();
@@ -2092,8 +2180,20 @@
         });
       }
 
+      function bindInfoButtons() {
+        document.addEventListener("click", (e) => {
+          const btn = e.target.closest(".info-btn");
+          if (!btn) return;
+          const targetId = btn.dataset.info;
+          const drawer = document.getElementById(targetId);
+          if (!drawer) return;
+          const isOpen = drawer.classList.toggle("open");
+          btn.classList.toggle("active", isOpen);
+          btn.setAttribute("aria-expanded", String(isOpen));
+        });
+      }
+
       function bindInputs() {
-        // Inputs padrão dos cards e topo do simulador
         document.querySelectorAll(".fin-input, .fin-select").forEach((el) => {
           const id = el.id;
           if (!id) return;
@@ -2138,7 +2238,6 @@
           });
         });
 
-        // Delegação de eventos para inputs dinâmicos de "Investimento Adicional" na tabela
         const tbody = document.getElementById("simTableBody");
 
         tbody.addEventListener("focusin", (e) => {
@@ -2173,17 +2272,14 @@
       }
 
       function bindToolbarButtons() {
-        // Abas
         document.querySelectorAll(".tab-btn").forEach((btn) => {
           btn.addEventListener("click", () => switchTab(btn.dataset.tab));
         });
 
-        // Tema
         document.getElementById("btnToggleTheme").addEventListener("click", () => {
           applyTheme(state.theme === "dark" ? "light" : "dark");
         });
 
-        // Limpar Aportes Extras
         document.getElementById("btnClearExtras").addEventListener("click", () => {
           state.adicionais = {};
           document.querySelectorAll(".table-extra-input").forEach((inp) => {
@@ -2195,7 +2291,6 @@
           showToast("Aportes adicionais zerados.");
         });
 
-        // Exportar CSV da tabela mensal
         document.getElementById("btnExportCsv").addEventListener("click", () => {
           if (lastSimRows.length <= 1) return;
           const header = [
@@ -2223,14 +2318,12 @@
           showToast("Tabela exportada em CSV.");
         });
 
-        // Exportar JSON
         document.getElementById("btnExportJson").addEventListener("click", () => {
           const payload = JSON.stringify(state, null, 2);
           downloadBlob(payload, "cenarios-financeiros.json", "application/json");
           showToast("Backup JSON exportado.");
         });
 
-        // Importar JSON
         const fileInput = document.getElementById("fileImportJson");
         document.getElementById("btnImportJson").addEventListener("click", () => fileInput.click());
         fileInput.addEventListener("change", (e) => {
@@ -2241,9 +2334,10 @@
             try {
               const parsed = JSON.parse(String(reader.result));
               if (!parsed || typeof parsed.fields !== "object") throw new Error();
+              const tab = VALID_TABS.includes(parsed.activeTab) ? parsed.activeTab : DEFAULTS.activeTab;
               state = {
                 theme: parsed.theme === "light" ? "light" : "dark",
-                activeTab: parsed.activeTab || "tab-calculadoras",
+                activeTab: tab,
                 fields: { ...DEFAULTS.fields, ...parsed.fields },
                 adicionais: { ...(parsed.adicionais || {}) }
               };
@@ -2263,7 +2357,6 @@
           reader.readAsText(file);
         });
 
-        // Restaurar Padrão
         document.getElementById("btnResetAll").addEventListener("click", () => {
           const currentTheme = state.theme;
           const currentTab = state.activeTab;
@@ -2294,6 +2387,7 @@
       // Inicialização
       applyTheme(state.theme);
       hydrateInputsFromState();
+      bindInfoButtons();
       bindInputs();
       bindToolbarButtons();
       recalculateCalculators();
